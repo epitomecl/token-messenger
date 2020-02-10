@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+  <script src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js"></script>
+  <body>
+  
+    <div id="root"></div>
+
+    <script>
+	
+import React from 'react';
+import ReactDOM from 'react-dom';
+import './App.css';
+
+class MyHeader extends React.Component {
+  render() {
+    return (
+      <div>
+      <h1>Hello Style!</h1>
+      <p>Add a little style!.</p>
+      </div>
+    );
+   
+}
+}
+
+ReactDOM.render(<MyHeader />, document.getElementById('root'));
+    </script>
+
+
+<script>
+class Car {
+  constructor(name) {
+    this.brand = name;
+  }
+
+  present() {
+    return 'I have a ' + this.brand;
+  }
+}
+
+class Model extends Car {
+  constructor(name, mod) {
+    super(name);
+    this.model = mod;
+  }  
+  show() {
+    return this.present() + ', it is a ' + this.model
+  }
+}
+
+mycar = new Model("Ford", "Mustang");
+document.write(mycar.show());
+</script>
+
+  </body>
+</html>

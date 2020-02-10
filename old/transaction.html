@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Insa</title>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+<style>
+body {
+	padding: 0px;
+}
+</style>
+</head>
+<body>
+
+<h1>Transaction</h1>
+
+<form>
+    <input id="sender" placeholder="sender">
+	<input id="receiver" placeholder="receiver">
+    <input id="quantity" placeholder="quantity">	
+    <input id="reason" placeholder="reason">
+    <button>Add</button>
+</form>
+
+<ul></ul>
+
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/gun/examples/jquery.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gun/sea.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/gun/lib/webrtc.js"></script>	
+<script>
+var gun = Gun();//['https://gunjs.herokuapp.com/gun']);
+
+var transaction = gun.get('transaction');
+
+$('form').on('submit', function(e){
+    e.preventDefault();
+	var sender = $('#sender').val();
+	var receiver = $('#receiver').val();
+	var quantity = $('#quantity').val();
+	var reason = $('#reason').val();
+	var timestamp = (new Date).getTime();
+    
+	transaction.set({sender: sender, receiver: receiver, quantity: quantity, reason: reason, timestamp: timestamp});
+	
+    $('input').val("");
+})
+
+transaction.map().on(function(item, id){
+	console.log("item: " + item);
+    var li = $('#' + id).get(0) || $('<li>').attr('id', id).appendTo('ul');
+    if(item){
+        $(li).text(item);
+    } else {
+        $(li).hide();
+    }
+})
+
+$('body').on('dblclick', 'li', function(e){
+    // transaction.get(this.id).put(null);
+})
+</script>
+</body>
+</html>
