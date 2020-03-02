@@ -20,6 +20,9 @@
     padding-top: 1rem;
     padding-bottom: 1rem;
 }
+.blink {
+	display: inline;
+}
  </style>
 </head>
 <body>
@@ -82,7 +85,7 @@
 		<form method="get" action="<?php echo $_SERVER['PHP_SELF']; ?>" name="filter">
 			<input type="hidden" name="module" value="community">
 			<div class="row pb-4">
-			  <div class="col-sm-5"><h2>Our Community</h2></div>
+			  <div class="col-sm-5"><h2>Our Community<div class="blink dot">.</div></h2></div>
 			  <div class="col-sm-7">
 				<div class="btn-toolbar justify-content-end">
 				<button type="button" class="btn ml-1 mb-1">Number of rows:</button>
@@ -98,12 +101,18 @@
 			  </div>
 			</div>
 			<div class="row pb-4">
-				<div class="col-sm-12">
+				<div class="col-sm-12 viewVoterTurnout">
 				<p>This poll finished in <?php echo $closed->h; ?> hours and <?php echo $closed->i; ?> minutes. 
 				The attendance must go at least over 50% and so far <?php echo trim($attendance); ?>% of the members have voted. 
 				The poll winner must get over 50%. Your current vote is still <?php echo trim($remain); ?> days valid. 
 				The next master could be... <?php echo trim($winner->userName); ?></p>
 				</div>
+				<template id="viewVoterTurnout">
+				<p>This poll finished in <?php echo $closed->h; ?> hours and <?php echo $closed->i; ?> minutes. 
+				The attendance must go at least over 50% and so far <?php echo trim($attendance); ?>% of the members have voted. 
+				The poll winner must get over 50%. Your current vote is still <?php echo trim($remain); ?> days valid. 
+				The next master could be... <?php echo trim($winner->userName); ?></p>
+				</template>
 			</div>
 			<div id="filter" class="collapse">
 				<div class="row pb-4">
@@ -119,40 +128,68 @@
 			<div class="col">
 			<?php if (count($data) > 0) { ?>
 				<?php $colors = array("warning", "info", "danger"); ?>
-				<div class="card-columns">
-						<?php foreach ($data as $row): ?>
-						<div class="card bg-light border-<?php echo $colors[intval($row["group"])]; ?>">
-							<div class="card-body">
-								<h5 class="card-title"><?php echo trim($row["userName"]); ?></h5>
-								<p class="card-text"><?php echo trim($row["comment"]); ?></p>
-								<p class="card-text">since <?php echo trim($row["created"]); ?>, <?php echo trim($row["counter"]); ?> account(s)</p>	
-								<?php if (intval($row["group"]) > 0): ?>
-								<form method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>" name="ballot">
-									<input type="hidden" name="module" value="community">
-									<input type="hidden" name="searchText" value="<?php echo $searchText; ?>">
-									<input type="hidden" name="page" value="<?php echo $page; ?>">
-									<input type="hidden" name="itemsPerPage" value="<?php echo $itemsPerPage; ?>">
-									<input type="hidden" name="memberId" value="<?php echo intval($row["userId"]); ?>">
-									<div class="btn-toolbar justify-content-end">
-									<?php if (intval($row["voted"]) == 0) :?>
-										<button type="submit" class="btn btn-outline-success btn-block mb-1">Vote »</button>
-									<?php else: ?>
-										<button type="submit" class="btn btn-outline-secondary btn-block mb-1" disabled>The user you voted for</button>
-									<?php endif; ?>										
-									</div>
-								</form>
-								<?php if (intval($row["percent"]) > 0): ?>
-								<div class="progress mt-2">
-									<div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width:<?php echo trim($row["percent"]); ?>%"><?php echo trim($row["percent"]); ?>%</div>
+				<div class="card-columns viewCommunityMember" data-hashvalue="<?php echo trim($hashValue); ?>" data-searchtext="<?php echo trim($searchText); ?>" data-page="<?php echo intval($page); ?>" data-itemsperpage="<?php echo intval($itemsPerPage); ?>">
+					<?php foreach ($data as $row): ?>
+					<div class="card bg-light border-<?php echo $colors[intval($row["group"])]; ?>">
+						<div class="card-body">
+							<h5 class="card-title"><?php echo trim($row["userName"]); ?></h5>
+							<p class="card-text"><?php echo trim($row["comment"]); ?></p>
+							<p class="card-text">since <?php echo trim($row["created"]); ?>, <?php echo trim($row["counter"]); ?> account(s)</p>	
+							<?php if (intval($row["group"]) > 0): ?>
+							<form method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>" name="ballot">
+								<input type="hidden" name="module" value="community">
+								<input type="hidden" name="searchText" value="<?php echo $searchText; ?>">
+								<input type="hidden" name="page" value="<?php echo $page; ?>">
+								<input type="hidden" name="itemsPerPage" value="<?php echo $itemsPerPage; ?>">
+								<input type="hidden" name="memberId" value="<?php echo intval($row["userId"]); ?>">
+								<div class="btn-toolbar justify-content-end">
+								<?php if (intval($row["voted"]) == 0) :?>
+									<button type="submit" class="btn btn-outline-success btn-block mb-1">Vote »</button>
+								<?php else: ?>
+									<button type="submit" class="btn btn-outline-secondary btn-block mb-1" disabled>The user you voted for</button>
+								<?php endif; ?>										
 								</div>
-								<p class="card-text text-center mt-2">Obtained <?php echo trim($row["votes"]); ?> votes out of <?php echo trim($row["voters"]); ?></p>
-								<?php endif; ?>
-								<?php endif; ?>
+							</form>
+							<?php if (intval($row["percent"]) > 0): ?>
+							<div class="progress mt-2">
+								<div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width:<?php echo trim($row["percent"]); ?>%"><?php echo trim($row["percent"]); ?>%</div>
 							</div>
+							<p class="card-text text-center mt-2">Obtained <?php echo trim($row["votes"]); ?> votes out of <?php echo trim($row["voters"]); ?></p>
+							<?php endif; ?>
+							<?php endif; ?>
 						</div>
-						<?php endforeach; ?>
+					</div>
+					<?php endforeach; ?>
 				</div>
 			<?php } ?>
+			<template id="itemCommunityMember">
+				<div class="card bg-light border-${border}">
+					<div class="card-body">
+						<h5 class="card-title">${userName}</h5>
+						<p class="card-text">${comment}</p>
+						<p class="card-text">since ${created}, ${counter} account(s)</p>	
+						<div class="${displayVoting}">
+							<form method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>" name="ballot">
+								<input type="hidden" name="module" value="community">
+								<input type="hidden" name="searchText" value="${searchText}">
+								<input type="hidden" name="page" value="${page}">
+								<input type="hidden" name="itemsPerPage" value="${itemsPerPage}">
+								<input type="hidden" name="memberId" value="${userId}">
+								<div class="btn-toolbar justify-content-end">
+								<button type="submit" class="btn btn-outline-success btn-block mb-1 ${displayButtonVote}">Vote »</button>
+								<button type="submit" class="btn btn-outline-secondary btn-block mb-1 ${displayButtonDisabled}" disabled>The user you voted for</button>
+								</div>
+							</form>
+							<div class="${displayProgressBar}">
+								<div class="progress mt-2">
+									<div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width:${percent}%">${percent}%</div>
+								</div>
+								<p class="card-text text-center mt-2">Obtained ${votes} votes out of ${voters}</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</template>
 			</div>
 		</div>
 		
@@ -194,35 +231,28 @@
 <script src="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/js/bootstrap4-toggle.min.js"></script>
 <script type="text/javascript">
 
-$('.table').on('change', 'input[type=checkbox]', function(e) {
-	event.preventDefault();
-	event.stopPropagation();
+function updateCommunityView(path) {
+	$(path).fadeOut( "slow" );
 	
-	$(this).bootstrapToggle('disable');
-	
+	var view = $('.viewCommunityMember');
 	var formData = new FormData();
-	formData.append("module", "AccountSuspended");
-	formData.append("accountId", $(this).data("id"));	
-	formData.append("column", this.name);
-	formData.append("checked", this.checked ? 1 : 0);
+	formData.append("module", "Community");
+	formData.append("hashValue", view.data("hashvalue"));
+	formData.append("page", view.data("page"));
+	formData.append("itemsPerPage", view.data("itemsperpage"));
+	formData.append("searchText", view.data("searchtext"));
+	
+	var query = new Array();
+	for (var pair of formData.entries()) {
+		query.push(pair[0] + "=" + pair[1]); 
+	}
 
-	$.ajax({
-		url: "/inssa/api/",
-		type: "POST",
-		data: formData,
-		processData: false, // tell jQuery not to process the data
-		contentType: false, // tell jQuery not to set contentType
-		dataType: 'json'
-	}).done(function(json) {
-		console.log(json);
-		if (json.accountId == formData.get("accountId")) {
-			$(':checkbox[data-id="'+formData.get("accountId")+'"]').bootstrapToggle('enable');	
-		}
-	}).fail(function (jqXHR, textStatus, errorThrown) {
-        console.log(jqXHR);
-		console.log(textStatus);
-		console.log(errorThrown);
-	});
+	console.log(query.join("&"));
+	requestGet(query.join("&"));	
+}
+
+$(document).ready(function() {
+	setInterval('updateCommunityView(".blink.dot")', 1000);
 });
 		
 function requestGet(data) {
@@ -235,7 +265,54 @@ function requestGet(data) {
 			var obj = JSON.parse(data);
 			
 			switch(obj.module) {
-
+				case "Community":
+					if (obj.data && obj.data.length > 0) {
+						var viewTpl = $('#viewVoterTurnout').html().split(/\$\{(.+?)\}/g);
+						var view = [{ 
+							hours : obj.closed.h,
+							minutes : obj.closed.i,
+							attendance : obj.attendance,
+							remain : obj.remain,
+							userName : obj.winner.userName				
+						}];
+						$('.viewVoterTurnout').html(view.map(function (item) {
+							return viewTpl.map(render(item)).join('');
+						}));
+							
+						$('.viewCommunityMember').data("hashvalue", obj.hashValue);
+						$('.viewCommunityMember').data("page", obj.page);
+						$('.viewCommunityMember').data("itemsperpage", obj.itemsPerPage);
+						$('.viewCommunityMember').data("searchtext", obj.searchText);
+												
+						var itemTpl = $('#itemCommunityMember').html().split(/\$\{(.+?)\}/g);
+						$('.viewCommunityMember').empty();
+						$.each( obj.data, function( key, elm ) {
+							var items = [{
+								border : ["warning", "info", "danger"][elm.group],
+								userName : elm.userName,
+								comment : elm.comment,
+								created : elm.created,
+								counter : elm.counter,
+								displayVoting : (elm.group > 0) ? "" : "d-none",
+								searchText : obj.searchText,
+								page : obj.page,
+								itemsPerPage : obj.itemsPerPage,							
+								userId : elm.userId,
+								displayButtonVote : (elm.voted == 0) ? "" : "d-none",
+								displayButtonDisabled : (elm.voted == 0) ? "d-none" : "",
+								percent : elm.percent,
+								votes : elm.votes,
+								voters : elm.voters,
+								displayProgressBar : (elm.percent > 0) ? "" : "d-none"}];
+							$('.viewCommunityMember').append(
+								items.map(function (item) {
+									return itemTpl.map(render(item)).join('');
+								})
+							);
+						});
+					}
+					$(".blink.dot").fadeIn( "slow" );
+					break;
 			}
 		}
 	).fail( function(xhr, textStatus, error) {

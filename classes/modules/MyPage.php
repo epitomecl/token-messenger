@@ -104,7 +104,8 @@ class MyPage {
 	private function getOptionArraySender($mysqli, $userId) {
 		$data = array();
 		$sql = "SELECT account.account_id, account.name FROM account ";
-		$sql .= sprintf("WHERE user_id = %d;", $userId);
+		$sql .= sprintf("WHERE user_id = %d ", $userId);
+		$sql .= "ORDER BY account.community;";
 		
 		$data = array();
 		if ($result = $mysqli->query($sql)) {

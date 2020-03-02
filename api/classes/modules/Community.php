@@ -4,14 +4,27 @@ namespace modules;
 
 use \Exception as Exception;
 
+/**
+* Community module gives an overview about all community members and information about current voting.
+* 
+*/
 class Community {
 	private $mysqli;
 	
 	public function __construct($mysqli) {
 		$this->mysqli = $mysqli;
 	}
-	
-	public function doPost($userId, $page, $itemsPerPage, $searchText, $lang, $memberId) {
+
+	/**
+	* something describes this method
+	*
+	* @param int $userId The user id of current user
+	* @param int $memberId The user id of the user you voted for
+	* @param int $page The current page
+	* @param int $itemsPerPage The count of items per page
+	* @param string $searchText The search text for looking into email, username and comment
+	*/	
+	public function doPost($userId, $memberId, $page, $itemsPerPage, $searchText) {
 		$mysqli = $this->mysqli;
 		
 		$this->cleanupVotes($mysqli);
@@ -32,12 +45,38 @@ class Community {
 		$winner = $this->getWinner($poll);		
 		$closed = (new \DateTime())->diff(new \DateTime(date("Y-m-d 23:59:59", time())));
 		$remain = $this->getRemainDays($mysqli, $userId);
-		$hashValue = md5(json_encode($data));
 		
-		require_once("CommunityView.php"); 
+		$obj = new \stdClass();
+		$obj->userId = $userId;
+		$obj->total = $total;
+		$obj->data = $data;
+		$obj->page = $page;
+		$obj->pages = $pages;
+		$obj->itemsPerPage = $itemsPerPage;
+		$obj->queryString = $queryString;
+		$obj->isAdmin = $isAdmin;
+		$obj->isMember = $isMember;		
+		$obj->attendance = $attendance;
+		$obj->winner = $winner;		
+		$obj->closed = $closed;
+		$obj->remain = $remain;
+		$obj->module = $module;
+		$obj->method = "POST";
+		$obj->hashValue = md5(json_encode($data));
+		
+		echo json_encode($obj, JSON_UNESCAPED_UNICODE);
 	}
 	
-	public function doGet($userId, $page, $itemsPerPage, $searchText, $lang) {
+	/**
+	* something describes this method
+	*
+	* @param int $userId The user id of current user
+	* @param string $hashValue The hash value of current content on page
+	* @param int $page The current page
+	* @param int $itemsPerPage The count of items per page
+	* @param string $searchText The search text for looking into email, username and comment
+	*/
+	public function doGet($userId, $hashValue, $page, $itemsPerPage, $searchText) {
 		$mysqli = $this->mysqli;
 		
 		$this->cleanupVotes($mysqli);
@@ -57,9 +96,31 @@ class Community {
 		$winner = $this->getWinner($poll);	
 		$closed = (new \DateTime())->diff(new \DateTime(date("Y-m-d 23:59:59", time())));
 		$remain = $this->getRemainDays($mysqli, $userId);
-		$hashValue = md5(json_encode($data));
 		
-		require_once("CommunityView.php"); 
+		$obj = new \stdClass();
+		$obj->userId = $userId;
+		$obj->total = $total;
+		$obj->data = $data;
+		$obj->page = $page;
+		$obj->pages = $pages;
+		$obj->itemsPerPage = $itemsPerPage;
+		$obj->queryString = $queryString;
+		$obj->isAdmin = $isAdmin;
+		$obj->isMember = $isMember;		
+		$obj->attendance = $attendance;
+		$obj->winner = $winner;		
+		$obj->closed = $closed;
+		$obj->remain = $remain;
+		$obj->module = $module;
+		$obj->method = "GET";
+		$obj->hashValue = md5(json_encode($data));
+		
+		// no change to the data, avoid deliver same data twice
+		if (strcmp($obj->hashValue, $hashValue) == 0) {
+			$obj->data = array();
+		}
+		
+		echo json_encode($obj, JSON_UNESCAPED_UNICODE);
 	}
 	
 	private function getQueryString($array) {

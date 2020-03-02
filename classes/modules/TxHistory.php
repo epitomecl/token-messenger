@@ -51,6 +51,7 @@ class TxHistory {
 		$sql .= "FROM account ";
 		$sql .= "LEFT JOIN user ON (user.user_id = account.user_id) ";
 		$sql .= sprintf("WHERE account.user_id = %d ", $userId);
+		$sql .= "ORDER BY account.community ";		
 		$sql .= "LIMIT 0,1;";
 		
 		$data = new \stdClass();
@@ -74,7 +75,8 @@ class TxHistory {
 	private function getArrOptionUserAccount($mysqli, $userId, $accountId) {
 		$sql = "SELECT account.account_id AS accountId, account.name AS accountName ";
 		$sql .= "FROM account ";
-		$sql .= sprintf("WHERE account.user_id = %d;", $userId);
+		$sql .= sprintf("WHERE account.user_id = %d ", $userId);
+		$sql .= "ORDER BY account.community;";
 		
 		$option = array();
 		

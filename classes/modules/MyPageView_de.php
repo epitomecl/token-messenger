@@ -4,6 +4,7 @@
   <title>Inssa Project</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.1.0/css/flag-icon.min.css" rel="stylesheet">   
  <style>
@@ -21,6 +22,9 @@
 }
 .cursor-pointer {
   cursor: pointer;
+}
+.blink {
+	display: inline;
 }
  </style>
 </head>
@@ -82,9 +86,14 @@
 <section class="container-section bg-light">
 	<div class="container-fluid mb-4">
 		<div class="row">
-			<div class="col-sm-12"><h2>Willkommen zur&uuml;ck, <?php echo trim($userData->userName); ?>!</h2></div>
+			<div class="col-sm-7"><h2>Willkommen zur&uuml;ck, <?php echo trim($userData->userName); ?><div class="blink note">!</div></h2></div>
+			<div class="col-sm-5">
+				<div class="btn-toolbar justify-content-end">
+
+				</div>
+			</div>
 		</div>
-		
+	<div class="container-fluid viewUserAccount mb-4">
 		<?php foreach ($data as $account): ?>
 		<div class="card border-<?php echo (intval($account->suspended)) ? "danger bg-light" : "info"; ?> mt-4">
 		<div class="card-body">
@@ -128,6 +137,48 @@
 		<?php endif; ?>
 		</div>
 		<?php endforeach; ?>
+		</div>
+		<template id="itemUserAccount">
+		<div class="card border-${style} mt-4">
+		<div class="card-body">
+		<div class="row">
+			<div class="col-sm-6">
+				<div class="row">
+					<div class="col-4">
+						<p>Account</p>
+						<h4>${accountName}</h4>
+					</div>
+					  <div class="col-4">
+						<p>in total</p>
+						<h4 class="d-inline">${received}<h4>
+					  </div>
+					  <div class="col-4">
+						<p>in month</p>
+						<h4>${month}<h4>				  
+					  </div>			  
+				</div>
+			</div>
+			<div class="col-sm-6">
+				<div class="row">			
+					<div class="col-4">
+						<p>${tokenName} (${tokenSymbol})<p>
+						<img src="${tokenIcon}" style="height:38px;" class="rounded-circle" title="${tokenName}"> 						
+					  </div>
+						<div class="col-4">
+							<p>remain</p>
+							<h4>${remain}<h4>
+						</div>
+						<div class="col-4">
+							<p>total</p>
+							<h4>${total}<h4>
+						</div>			  
+				</div>
+			</div>			
+		</div>
+		</div>
+		<div class="card-footer ${display}">Dieses Konto ist ausgesetzt. Es werden keine eigenen Token erzeugt.</div>
+		</div>
+		</template>
 	</div>
 </section>
 
@@ -135,13 +186,15 @@
 <section class="container-section">
 	<div class="container-fluid mb-4">
 		<div class="row pb-4">
-			<div class="col-sm-8">
-				<h2>We ask for your attention</h2>
+			<div class="col-sm-7">
+				<h2>We ask for your attention<div class="blink dot">.</div></h2>
 			</div>
-			<div class="col-sm-4">
+			<div class="col-sm-5">
 				<div class="btn-toolbar justify-content-end">
-
-				</div>				
+					<button type="button" id="push-btn" disabled class="btn btn-outline-success">
+					Subscribe
+					</button>
+				</div>
 			</div>
 		</div>
 		<div class="row pb-4">
@@ -173,14 +226,14 @@
 								<p class="card-text">20/02/2002 20:02</p>							
 							</div>
 						</div>
-						<div class="card border-warning" data-NGINX="" data-pendingId="0" data-dialog="0" data-accountId="0">
+						<div class="card border-warning" data-pendingId="0" data-dialog="0" data-accountId="0">
 							<div class="card-header bg-warning">10 token to Y</div>
 							<div class="card-body">
 								<h5 class="card-title">An outgoing message is yellow marked.</h5>
 								<p class="card-text">20/02/2002 20:02</p>							
 							</div>
 						</div>
-						<div class="card border-info" data-NGINX="" data-pendingId="0" data-dialog="0" data-accountId="0">
+						<div class="card border-info" data-pendingId="0" data-dialog="0" data-accountId="0">
 							<div class="card-header bg-info">10 token to Z</div>						
 							<div class="card-body">
 								<h5 class="card-title">An incoming message is blue marked.</h5>
@@ -197,7 +250,30 @@
 							<p class="card-text">${datetime}</p>					
 						</div>
 					</div>
-				</template>		
+				</template>
+				<template id="viewPendingTransaction">
+					<div class="card" data-NGINX="" data-pendingId="0" data-dialog="0" data-accountId="0">
+						<div class="card-header">10 token to X</div>
+						<div class="card-body">
+							<h5 class="card-title">A confirmed or withdrawal message will be grayed and removed.</h5>
+							<p class="card-text">20/02/2002 20:02</p>							
+						</div>
+					</div>
+					<div class="card border-warning" data-pendingId="0" data-dialog="0" data-accountId="0">
+						<div class="card-header bg-warning">10 token to Y</div>
+						<div class="card-body">
+							<h5 class="card-title">An outgoing message is yellow marked.</h5>
+							<p class="card-text">20/02/2002 20:02</p>							
+						</div>
+					</div>
+					<div class="card border-info" data-pendingId="0" data-dialog="0" data-accountId="0">
+						<div class="card-header bg-info">10 token to Z</div>						
+						<div class="card-body">
+							<h5 class="card-title">An incoming message is blue marked.</h5>
+							<p class="card-text">20/02/2002 20:02</p>						
+						</div>
+					</div>
+				</template>
 			</div>
 		</div>
 	</div>
@@ -229,18 +305,20 @@
 						<option value="0">To account ...</option>
 						<?php echo $txtOptionReceiver; ?>
 					<select>
-					<label for="quantity" class="mr-sm-2">quantity:</label>
+					<label for="quantity" class="mr-sm-2">Quantity:</label>
 					<input type="text" class="form-control mb-2 mr-sm-2" name="quantity" value="1">
 					<label for="reference" class="mr-sm-2">Reference:</label>
-					<textarea class="form-control mb-2 mr-sm-2" name="reference" rows="2" placeholder="Insert reference..." required="required"></textarea>
-					<button type="button" class="btn btn-outline-info text-dark">
-						<div class="form-check">
-							<label class="form-check-label cursor-pointer">
-								<input type="checkbox" class="form-check-input cursor-pointer" id="checkboxDirectTokenTransfer" value="1">Give tokens direct to a thankful person
-							</label>
-						</div>
-					</button>					
-					<button type="button" class="btn btn-primary module mt-2 mb-2">Submit</button>
+					<textarea class="form-control mr-sm-2" id="textarea-1" name="reference" rows="2" placeholder="Insert reference..." required="required"></textarea>
+					<div class="mt-2">
+						<button type="button" class="btn btn-outline-info text-dark">
+							<div class="form-check">
+								<label class="form-check-label cursor-pointer">
+									<input type="checkbox" class="form-check-input cursor-pointer" id="checkboxDirectTokenTransfer" value="1">Give tokens direct to a thankful person
+								</label>
+							</div>
+						</button>					
+						<button type="button" class="btn btn-primary module mt-2 mb-2">Submit</button>
+					</div>
 				</form>
 				<div class="container p-0 viewTokenTransfer"></div>
 				<template id="viewVerifiedTokenTransfer">
@@ -342,7 +420,7 @@
 			<div class="modal-body">
 					<div class="row mb-3">
 						<div class="col-sm-12">
-							<textarea class="form-control message" name="message" rows="3" placeholder="Your message..."></textarea>
+							<textarea class="form-control message" id="textarea-2" name="message" rows="3" placeholder="Your message..."></textarea>
 							<p>Enter message for recipient to understand your rejection or in other cases just leave a thankful message. 
 							Note, that everybody will be able to read this as part of transaction message.</p>
 						</div>
@@ -375,7 +453,7 @@
 			<div class="modal-body">
 				<div class="row mb-3">
 					<div class="col-sm-12">
-						<textarea class="form-control message" name="message" rows="3" placeholder="Your message..."></textarea>
+						<textarea class="form-control message" id="textarea-3" name="message" rows="3" placeholder="Your message..."></textarea>
 						<p>Enter message for every user to understand your abortation. 
 						Note, that everybody will be able to read this as part of transaction message.</p>
 					</div>
@@ -402,9 +480,17 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.8.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.8.1/firebase-messaging.js"></script>
+<script src="js/firebase/pushNotification.js"></script>
+<script src="js/jquery-ensure-max-length.js"></script>
 <script type="text/javascript">
 
-function updateBoard(path) {
+$('#textarea-1,#textarea-2,#textarea-3').EnsureMaxLength({separator: ' von ', limit: 512});
+  
+function updateMessageBoard(path) {
+	$(path).fadeOut( "slow" );
+	
 	var formData = new FormData();
 	formData.append("module", "PendingTransaction");
 	
@@ -416,8 +502,23 @@ function updateBoard(path) {
 	requestGet(query.join("&"));
 }
 
+function updateUserAccount(path) {
+	$(path).fadeOut( "slow" );
+	
+	var formData = new FormData();
+	formData.append("module", "UserAccount");
+	
+	var query = new Array();
+	for (var pair of formData.entries()) {
+		query.push(pair[0] + "=" + pair[1]); 
+	}
+
+	requestGet(query.join("&"));	
+}
+
 $(document).ready(function() {
-	setInterval('updateBoard(".refresh")', 1000);
+	setInterval('updateMessageBoard(".blink.dot")', 1000);
+	setInterval('updateUserAccount(".blink.note")', 1000);
 });
 
 $(".module").on("click", function(event) {
@@ -534,14 +635,39 @@ function requestGet(data) {
 			var obj = JSON.parse(data);
 			
 			switch(obj.module) {
-				case "PendingTransaction":
-					if (obj.data) {
-						var itemTpl = $('#itemPendingTransaction').html().split(/\$\{(.+?)\}/g);
-						
-						if (obj.data.length > 0) {
-							$('.card-columns.viewPendingTransaction').empty();
-						}
+				case "UserAccount":
+					if (obj.data && obj.data.length > 0) {
+						var itemTpl = $('#itemUserAccount').html().split(/\$\{(.+?)\}/g);
 
+						$('.viewUserAccount').empty();
+						
+						$.each( obj.data, function( key, elm ) {
+							var items = [{
+								style : elm.suspended ? "danger bg-light" : "info",
+								accountName : elm.accountName,
+								received : elm.received,
+								month : elm.month,
+								tokenName : elm.tokenName,
+								tokenSymbol : elm.tokenSymbol,
+								tokenIcon : elm.tokenIcon,
+								remain : elm.remain,
+								total : elm.total,
+								display : elm.suspended ? "" : "d-none"}];
+							$('.viewUserAccount').append(
+								items.map(function (item) {
+									return itemTpl.map(render(item)).join('');
+								})
+							);
+						});
+					}
+					$(".blink.note").fadeIn( "slow" );
+					break;
+				case "PendingTransaction":
+					if (obj.data && obj.data.length > 0) {
+						var itemTpl = $('#itemPendingTransaction').html().split(/\$\{(.+?)\}/g);
+
+						$('.card-columns.viewPendingTransaction').empty();
+						
 						$.each( obj.data, function( key, elm ) {
 							if (!elm.pendingId) {
 								return;
@@ -557,7 +683,17 @@ function requestGet(data) {
 								})
 							);
 						});
+					} else {
+						var elm = $(".card-columns.viewPendingTransaction [data-pendingid='0']");
+						if (elm.length == 0) {
+							var viewTpl = $('#viewPendingTransaction').html().split(/\$\{(.+?)\}/g);
+							var view = [{ module: obj.module}];
+							$('.card-columns.viewPendingTransaction').html(view.map(function (item) {
+								return viewTpl.map(render(item)).join('');
+							}));
+						}					
 					}
+					$(".blink.dot").fadeIn( "slow" );
 					break;
 				case "TokenTransactionHistory":
 					var viewTpl = $('#viewTokenTransactionHistory').html().split(/\$\{(.+?)\}/g);
@@ -693,7 +829,10 @@ function requestPost(data) {
 								return viewTpl.map(render(item)).join('');
 							}));
 							var items = [{pendingId: elm.pendingId, accountId: elm.accountId, 
-								NGINX: "DELETE", border: "border-warning", direction : "from",
+								NGINX: "DELETE", 
+								border: "border-warning", 
+								background: "bg-warning",
+								direction : "to",
 								datetime: elm.datetime, account: elm.receiver, quantity: elm.quantity, reference: elm.reference}];
 							$('.card-columns.viewPendingTransaction').prepend(
 								items.map(function (item) {
@@ -704,12 +843,17 @@ function requestPost(data) {
 					}
 
 					if((obj.pendingId) && obj.pendingId > 0 && (obj.transactionId) && obj.transactionId > 0) {
-						$(".card-columns.viewPendingTransaction [data-pendingid='"+obj.pendingId+"']").removeClass('border-warning border-info border-info bg-warning bg-info');
-						$(".card-columns.viewPendingTransaction [data-pendingid='"+obj.pendingId+"']").data("dialog", 0);
+						var elm = $(".card-columns.viewPendingTransaction [data-pendingid='"+obj.pendingId+"']");
+						elm.removeClass("border-warning border-info cursor-pointer");
+						elm.find(".card-header").removeClass("bg-warning bg-info");
+						elm.data("dialog", 0);
 					}
 					
-					break;				
-			}			
+					break;	
+				case "PushToken":
+					console.log(data);
+					break;	
+			}					
 		}
 	).fail( function(xhr, textStatus, error) {
         $("#jsondata").text(xhr.status + " :: " + xhr.statusText + " :: " + xhr.responseText);

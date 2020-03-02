@@ -19,6 +19,10 @@ use modules\Faucet as Faucet;
 use modules\Ballot as Ballot;
 use modules\AccountSuspended as AccountSuspended;
 use modules\TokenTransactionDetail as TokenTransactionDetail;
+use modules\PushToken as PushToken;
+use modules\PushNotification as PushNotification;
+use modules\UserAccount as UserAccount;
+use modules\Community as Community;
 
 // Allow CORS
 if (isset($_SERVER['HTTP_ORIGIN'])) {
@@ -37,7 +41,6 @@ session_start();
 
 function getParam($array, $param, $label = '') {
 	if (array_key_exists($param, $array)) {
-		
 		if (strcmp($label, "array") == 0) {
 			return (is_array($array[$param])) ? $array[$param] : array($array[$param]);
 		} elseif (strcmp($label, "int") == 0) {
@@ -97,7 +100,14 @@ try {
 				$userId = getParam($_SESSION, "USERID", "int");
 				$instance->doGet($userId);
 			}
-			break;				
+			break;
+		case "USERACCOUNT":
+			$instance = new UserAccount($mysqli);		
+			if ($httpMethod == "GET") {
+				$userId = getParam($_SESSION, "USERID", "int");
+				$instance->doGet($userId);
+			}
+			break;			
 		case "TOTALUSERTOKENHOLDINGS":
 			$instance = new TotalUserTokenHoldings($mysqli);
 			if ($httpMethod == "GET") {
@@ -181,6 +191,45 @@ try {
 				$column = getParam($_POST, "column");
 				$checked = getParam($_POST, "checked", "int");	
 				$instance->doPost($accountId, $column, $checked);
+			}
+			break;
+		case "PUSHTOKEN":
+			$instance = new PushToken($mysqli);		
+			if ($httpMethod == "POST") {
+				$userId = getParam($_SESSION, "USERID", "int");
+				$pushToken = getParam($_POST, "pushToken");	
+				$instance->doPost($userId, $pushToken);
+			} else if ($httpMethod == "DELETE") {
+				$userId = getParam($_SESSION, "USERID", "int");	
+				$pushToken = getParam($_POST, "pushToken");			
+				$instance->doDelete($userId, $pushToken);
+			}
+			break;
+		case "PUSHNOTIFICATION":
+			$instance = new PushNotification($mysqli);		
+			if ($httpMethod == "POST") {
+				$pushToken = getParam($_POST, "pushToken");	
+				$title = getParam($_POST, "title");	
+				$body = getParam($_POST, "body");	
+				$instance->doPost($pushToken, $title, $body);
+			} 
+			break;
+		case "COMMUNITY":
+			$instance = new Community($mysqli);		
+			if ($httpMethod == "POST") {
+				$userId = getParam($_SESSION, "USERID", "int");
+				$memberId = getParam($_POST, "memberId", "int");	
+				$page = getParam($_POST, "page", "int");	
+				$itemsPerPage = getParam($_POST, "itemsPerPage", "int");	
+				$searchText = getParam($_POST, "searchText");
+				$instance->doPost($userId, $memberId, $page, $itemsPerPage, $searchText);
+			} else if ($httpMethod == "GET") {
+				$userId = getParam($_SESSION, "USERID", "int");	
+				$hashValue = getParam($_GET, "hashValue");
+				$page = getParam($_GET, "page", "int");	
+				$itemsPerPage = getParam($_GET, "itemsPerPage", "int");	
+				$searchText = getParam($_GET, "searchText");			
+				$instance->doGET($userId, $hashValue, $page, $itemsPerPage, $searchText);
 			}
 			break;			
 		default:

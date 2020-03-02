@@ -1,0 +1,34 @@
+<script src="https://www.gstatic.com/firebasejs/3.7.2/firebase.js"></script>
+<script>
+// Initialize Firebase
+  var firebaseConfig = {
+    apiKey: "AIzaSyDzmO-0EXYWmSHsqUM7PPIa7mzYwwMzv3Y",
+    authDomain: "inssaminiproject.firebaseapp.com",
+    databaseURL: "https://inssaminiproject.firebaseio.com",
+    projectId: "inssaminiproject",
+    storageBucket: "inssaminiproject.appspot.com",
+    messagingSenderId: "965232226456",
+    appId: "1:965232226456:web:facc3b298da14f1cf5e0ed",
+    measurementId: "G-CC1CQ9PY02"
+  };
+firebase.initializeApp(firebaseConfig);
+
+const messaging = firebase.messaging();
+
+messaging.requestPermission()
+.then(function() {
+  console.log('Notification permission granted.');
+  return messaging.getToken();
+})
+.then(function(token) {
+  console.log(token); // Display user token
+})
+.catch(function(err) { // Happen if user deney permission
+  console.log('Unable to get permission to notify.', err);
+});
+
+messaging.onMessage(function(payload){
+	console.log('onMessage',payload);
+})
+
+</script>

@@ -3,6 +3,7 @@ namespace modules;
 
 use \Exception as Exception;
 use modules\DirectTokenTransfer as DirectTokenTransfer;
+use modules\PushNotification as PushNotification;
 
 /**
 * Token transfer from one account to another account 
@@ -50,6 +51,8 @@ class VerifiedTokenTransfer extends DirectTokenTransfer {
 
 				array_push($data, $obj);					
 			}
+			
+			$this->sendPushNotification($mysqli, $receiverIds, $senderId, $quantity, $reference);
 		}
 		$obj = new \stdClass();
 		$obj->module = (new \ReflectionClass($this))->getShortName();
@@ -140,6 +143,23 @@ class VerifiedTokenTransfer extends DirectTokenTransfer {
 		$obj->method = "DELETE";
 		
 		echo json_encode($obj, JSON_UNESCAPED_UNICODE);
+	}
+	
+	private function sendPushNotification($mysqli, $receiverIds, $senderId, $quantity, $reference) {
+		$arrToken = array();
+		$sql = "SELECT DISTINCT notification.token FROM notification ";
+		$sql .= "LEFT JOIN account ON (account.user_id = notification.user_id) ";
+		$sql .= sprintf("WHERE account.account_id in (%s);", implode(",", $receiverIds));
+	
+		if ($result = $mysqli->query($sql)) {
+			while ($row = $result->fetch_assoc()) {
+				array_push($arrToken, trim($row["token"]));
+			}
+		}
+		$accountName = $this->getAccountName($mysqli, $senderId);
+		$title = sprintf("%d token from %s", $quantity, $accountName);
+		$fields = ["title" => $title, "body" => $reference];
+		PushNotification::sendPushNotification($arrToken, $fields);
 	}
 	
 	private function insertTransaction($mysqli, $senderId, $receiverId, $quantity, $reference, $supplement, $status, $created) {
