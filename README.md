@@ -39,7 +39,7 @@ SOCK = "/tmp/mysql5.sock"
 
 <p align="justify">
 For firebase notification please adjust in folder js/firebase/ these two files (pushNotification.js, serviceWorker.js)
-please adjust following lines:
+these following lines:
 </p>
 
 ```
