@@ -39,8 +39,8 @@ SOCK = "/tmp/mysql5.sock"
 
 <p align="justify">
 For firebase notification please adjust in folder js/firebase/ these two files (pushNotification.js, serviceWorker.js).
-These following lines should be contain your firebase account data. Go into your firebase project settings and download firebase
-config file from your Firebase Web App section.
+These following lines should be contain your firebase config data. These data available under your firebase project settings 
+in Firebase Web App section.
 </p>
 
 ```
