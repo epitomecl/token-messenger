@@ -4,7 +4,7 @@ importScripts('https://www.gstatic.com/firebasejs/7.8.1/firebase-messaging.js')
 
 // Initialize the Firebase app in the service worker by passing in the messagingSenderId.
 var config = {
-	apiKey: "AIzaSyDzmO-0EXYWmSHsqUM7PPIa7mzYwwMzv3Y",
+	apiKey: "AIzaSyDzmO-...",
 	authDomain: "inssaminiproject.firebaseapp.com",
 	databaseURL: "https://inssaminiproject.firebaseio.com",
 	projectId: "inssaminiproject",

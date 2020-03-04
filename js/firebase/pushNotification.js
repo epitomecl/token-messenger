@@ -1,6 +1,6 @@
 // Initialize the Firebase app by passing in the messagingSenderId
 var config = {
-    apiKey: "AIzaSyDzmO-0EXYWmSHsqUM7PPIa7mzYwwMzv3Y",
+    apiKey: "AIzaSyDzmO-...",
     authDomain: "inssaminiproject.firebaseapp.com",
     databaseURL: "https://inssaminiproject.firebaseio.com",
     projectId: "inssaminiproject",
