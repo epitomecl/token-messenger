@@ -65,3 +65,46 @@ please adjust the line matching with
 return clients.openWindow('/inssa/')
 ``` 
 with your own target.
+
+## Beginner
+
+<p align="justify">
+After calling the homepage the user will be guided to combined login page. New user sign up with username and email address. 
+For other community members an short introduction (about me) is helpful. After submitting the sign up page in case of success
+an request for checking incomming emails appears. An timeslot of 15minutes gives the user the possibility to confirm the sign up process.
+The user has to call the given link and follow the instruction on the login page. A temporary password is printed on the login page.
+After successful login the new user can change their password.
+</p>
+
+<p align="justify">
+So long the new user is not confirmed by the community, the new user can not participate. 
+The new user can only waiting for confirmation by community and adjust the profile.
+</p>
+
+## Requirements
+<p align="justify">
+Now the communication over side channels are necessary. Because of set up the user account the master of the system should be informed about your 
+account name, token name, token symbol, token image (256x256, png).
+```
+token image (256x256, png)
+account name (Blueberry)
+token name (e.g. Euro)
+token symbol (e.g. EUR)
+```
+The user defined itself over these attributes. All these attributes are possible to change later. 
+</p>
+
+## Confirmed
+<p align="justify">
+After confirmation the user is now a full member with an personal user account. 
+Now a full member can have a look into Tx History, User History and Community.
+My Page has changed also. On My Page the user see an overview about all own accounts and all outgoing and incomming messages.
+</p>
+
+<p align="justify">
+The user has the possibility to send direct messages or verified messages. 
+Verified messages should be confirmed or refused by receiving person (account).
+Confirmed messages transfering the included token to the receiving account.
+Refused messages withdrawal the token back to the sender.
+</p>
+
