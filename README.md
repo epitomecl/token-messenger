@@ -85,12 +85,14 @@ The new user can only waiting for confirmation by community and adjust the profi
 <p align="justify">
 Now the communication over side channels are necessary. Because of set up the user account the master of the system should be informed about your 
 account name, token name, token symbol, token image (256x256, png).
+</p>
 ```
 token image (256x256, png)
 account name (Blueberry)
 token name (e.g. Euro)
 token symbol (e.g. EUR)
 ```
+<p align="justify">
 The user defined itself over these attributes. All these attributes are possible to change later. 
 </p>
 
