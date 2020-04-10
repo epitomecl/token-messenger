@@ -51,6 +51,9 @@
 			</li>
 			<?php if ($isMember): ?>
 			<li class="nav-item">
+				<a class="nav-link" href="<?php echo $_SERVER['PHP_SELF']; ?>?module=chatmessage">My Messages</a>
+			</li>
+			<li class="nav-item">
 				<a class="nav-link" href="<?php echo $_SERVER['PHP_SELF']; ?>?module=txhistory">Tx History</a>
 			</li>	  
 			<li class="nav-item">
@@ -93,93 +96,143 @@
 				</div>
 			</div>
 		</div>
+	</div>	
 	<div class="container-fluid viewUserAccount mb-4">
 		<?php foreach ($data as $account): ?>
 		<div class="card border-<?php echo (intval($account->suspended)) ? "danger bg-light" : "info"; ?> mt-4">
-		<div class="card-body">
-		<div class="row">
-			<div class="col-sm-6">
+			<div class="card-header">
 				<div class="row">
-					<div class="col-4">
-						<p>Account</p>
-						<h4><?php echo trim($account->accountName); ?></h4>
+					<div class="col-sm-12">
+						Account <?php echo trim($account->accountName); ?>, 
+						<?php echo intval($account->remain); ?> 
+						<img src="<?php echo trim($account->tokenIcon); ?>" style="height:38px;" class="rounded-circle" title="<?php echo trim($account->tokenName); ?>"> 
+						<?php echo trim($account->tokenSymbol); ?> 
+						(<?php echo trim($account->tokenName); ?>)
 					</div>
-					  <div class="col-4">
-						<p>in total</p>
-						<h4 class="d-inline"><?php echo intval($account->received); ?><h4>
-					  </div>
-					  <div class="col-4">
-						<p>in month</p>
-						<h4><?php echo intval($account->month); ?><h4>				  
-					  </div>			  
 				</div>
 			</div>
-			<div class="col-sm-6">
-				<div class="row">			
-					<div class="col-4">
-						<p><?php echo trim($account->tokenName); ?> (<?php echo trim($account->tokenSymbol); ?>)<p>
-						<img src="<?php echo trim($account->tokenIcon); ?>" style="height:38px;" class="rounded-circle" title="<?php echo trim($account->tokenName); ?>"> 						
-					  </div>
-						<div class="col-4">
-							<p>remain</p>
-							<h4><?php echo intval($account->remain); ?><h4>
+			<div class="card-body">
+				<div class="row">
+					<div class="col-sm-12">
+						Received this month (<?php echo intval($account->month); ?> token):
+						<div class="btn-toolbar justify-content-left">
+						<?php foreach ($account->tokenList as $token): ?>	
+							<button type="button" class="btn btn-outline-secondary mb-1 mr-1 iReceived" data-senderId="<?php echo intval($token["accountId"]); ?>" data-receiverId="<?php echo intval($account->accountId); ?>">
+								<div class="row">
+									<div class="col">
+										<img src="<?php echo trim($token["icon"]); ?>" style="height:38px;" class="rounded-circle" title="<?php echo trim($token["tokenName"]); ?>">
+									</div>
+								</div>
+								<div class="row">
+									<div class="col">
+								<?php echo trim($token["token"]); ?> <?php echo trim($token["symbol"]); ?>
+									</div>
+								</div>		
+							</button>				
+						<?php endforeach; ?>
 						</div>
-						<div class="col-4">
-							<p>total</p>
-							<h4><?php echo intval($account->total); ?><h4>
-						</div>			  
+					</div>
 				</div>
-			</div>			
-		</div>
-		</div>
-		<?php if (intval($account->suspended)): ?>
-		<div class="card-footer">Dieses Konto ist ausgesetzt. Es werden keine eigenen Token erzeugt.</div>
-		<?php endif; ?>
+				<div class="row">
+					<div class="col-12">
+						<p>Received total: <?php echo intval($account->received); ?></p>
+					</div>			
+				</div>
+				<div class="row">
+					<div class="col-sm-12">
+						Sent this month (<?php echo intval($account->sentPerMonth); ?> token):
+						<div class="btn-toolbar justify-content-left">
+						<?php foreach ($account->receiverList as $receiver): ?>	
+							<button type="button" class="btn btn-outline-secondary mb-1 mr-1 iSent" data-senderId="<?php echo intval($account->accountId); ?>" data-receiverId="<?php echo intval($receiver["accountId"]); ?>">
+								<div class="row">
+									<div class="col">
+								<?php echo trim($receiver["receiverName"]); ?>: <?php echo trim($receiver["token"]); ?> <?php echo trim($account->tokenSymbol); ?>
+									</div>
+								</div>		
+							</button>				
+						<?php endforeach; ?>
+						</div>
+					</div>
+				</div>
+				<div class="row">			
+					<div class="col-sm-12">
+						<p>Sent total: <?php echo intval($account->total); ?></p>
+					</div>			  
+				</div>
+			</div>
+			<?php if (intval($account->suspended)): ?>
+			<div class="card-footer">Dieses Konto ist ausgesetzt. Es werden keine eigenen Token erzeugt.</div>
+			<?php endif; ?>
 		</div>
 		<?php endforeach; ?>
-		</div>
-		<template id="itemUserAccount">
+	</div>
+	<template id="itemUserAccount">
 		<div class="card border-${style} mt-4">
-		<div class="card-body">
-		<div class="row">
-			<div class="col-sm-6">
+			<div class="card-header">
 				<div class="row">
-					<div class="col-4">
-						<p>Account</p>
-						<h4>${accountName}</h4>
+					<div class="col-sm-12">
+						Account ${accountName}, 
+						${remain}
+						<img src="${tokenIcon}" style="height:38px;" class="rounded-circle" title="${tokenName}"> 
+						${tokenSymbol} 
+						(${tokenName})
 					</div>
-					  <div class="col-4">
-						<p>in total</p>
-						<h4 class="d-inline">${received}<h4>
-					  </div>
-					  <div class="col-4">
-						<p>in month</p>
-						<h4>${month}<h4>				  
-					  </div>			  
 				</div>
 			</div>
-			<div class="col-sm-6">
-				<div class="row">			
-					<div class="col-4">
-						<p>${tokenName} (${tokenSymbol})<p>
-						<img src="${tokenIcon}" style="height:38px;" class="rounded-circle" title="${tokenName}"> 						
-					  </div>
-						<div class="col-4">
-							<p>remain</p>
-							<h4>${remain}<h4>
+			<div class="card-body">
+				<div class="row">
+					<div class="col-sm-12">
+						Received this month (${month} token):
+						<div class="btn-toolbar justify-content-left">
+						${userToken}
 						</div>
-						<div class="col-4">
-							<p>total</p>
-							<h4>${total}<h4>
-						</div>			  
+					</div>
 				</div>
-			</div>			
+				<div class="row">
+					<div class="col-12">
+						<p>Received total: ${received}</p>
+					</div>			
+				</div>
+				<div class="row">
+					<div class="col-sm-12">
+						Sent this month (${sentPerMonth} token):
+						<div class="btn-toolbar justify-content-left">
+						${tokenReceiver}
+						</div>
+					</div>
+				</div>
+				<div class="row">			
+					<div class="col-sm-12">
+						<p>Sent total: ${total}</p>
+					</div>			  
+				</div>
+			</div>
+			<div class="card-footer ${display}">Dieses Konto ist ausgesetzt. Es werden keine eigenen Token erzeugt.</div>
 		</div>
-		</div>
-		<div class="card-footer ${display}">Dieses Konto ist ausgesetzt. Es werden keine eigenen Token erzeugt.</div>
-		</div>
-		</template>
-	</div>
+	</template>
+	<template id="itemUserToken">
+		<button type="button" class="btn btn-outline-secondary mb-1 mr-1 iReceived" data-senderId="${senderId}" data-receiverId="${receiverId}">
+			<div class="row">
+				<div class="col">
+					<img src="${icon}" style="height:38px;" class="rounded-circle" title="${tokenName}">
+				</div>
+			</div>
+			<div class="row">
+				<div class="col">
+			${total} ${symbol}
+				</div>
+			</div>		
+		</button>
+	</template>
+	<template id="itemTokenReceiver">
+		<button type="button" class="btn btn-outline-secondary mb-1 mr-1 iSent" data-senderId="${senderId}" data-receiverId="${receiverId}">
+			<div class="row">
+				<div class="col">
+			${receiverName}: ${total} ${symbol}
+				</div>
+			</div>		
+		</button>
+	</template>
 </section>
 
 <?php if (count($data) > 0): ?>
@@ -471,7 +524,7 @@
     </div>
 </div>
 	
-<footer class="page-footer font-small pt-4 fixed-bottom">
+<footer class="page-footer font-small pt-4">
 	<div class="footer-copyright text-center py-3">© <?php echo date("Y");?> Copyright:
 		<a href="https://epitomecl.com"> EpitomeCL.com</a>
 	</div>
@@ -519,6 +572,40 @@ function updateUserAccount(path) {
 $(document).ready(function() {
 	setInterval('updateMessageBoard(".blink.dot")', 1000);
 	setInterval('updateUserAccount(".blink.note")', 1000);
+});
+
+$("div.viewUserAccount").on("click", "button.iReceived", function(event) {
+	event.preventDefault();
+	event.stopPropagation();
+	
+	var formData = new FormData();
+	formData.append("module", "TxHistory");
+	formData.append("senderId", $(this).data("senderid"));
+	formData.append("receiverId", $(this).data("receiverid"));
+	
+	var query = new Array();
+	for (var pair of formData.entries()) {
+		query.push(pair[0] + "=" + pair[1]); 
+	}
+
+	window.location.href = "\?" + query.join("&");
+});
+
+$("div.viewUserAccount").on("click", "button.iSent", function(event) {
+	event.preventDefault();
+	event.stopPropagation();
+	
+	var formData = new FormData();
+	formData.append("module", "TxHistory");
+	formData.append("senderId", $(this).data("senderid"));
+	formData.append("receiverId", $(this).data("receiverid"));
+	
+	var query = new Array();
+	for (var pair of formData.entries()) {
+		query.push(pair[0] + "=" + pair[1]); 
+	}
+
+	window.location.href = "\?" + query.join("&");
 });
 
 $(".module").on("click", function(event) {
@@ -625,6 +712,45 @@ $("#dialogPut .modal-body").on("click", "button.btn-warning", function(event) {
 	}
 });
 
+function getTokenList(itemTpl, data, accountId) {
+	let snippet = new Array();
+	$.each( data, function( key, elm ) {
+		var items = [{
+			senderId : elm.accountId,
+			receiverId : accountId,
+			icon : elm.icon,
+			symbol : elm.symbol,
+			tokenName : elm.tokenName,
+			total : elm.token}];
+		snippet.push(
+			items.map(function (item) {
+				return itemTpl.map(render(item)).join('');
+			})
+		);
+	});
+	
+	return snippet.join("");
+}
+
+function getReceiverList(itemTpl, data, accountId) {
+	let snippet = new Array();
+	$.each( data, function( key, elm ) {
+		var items = [{
+			senderId : accountId,
+			receiverId : elm.accountId,
+			receiverName : elm.receiverName,
+			symbol : elm.symbol,
+			total : elm.token}];
+		snippet.push(
+			items.map(function (item) {
+				return itemTpl.map(render(item)).join('');
+			})
+		);
+	});
+	
+	return snippet.join("");
+}
+
 function requestGet(data) {
 	$.get(
 		"/inssa/api/", data
@@ -637,8 +763,10 @@ function requestGet(data) {
 			switch(obj.module) {
 				case "UserAccount":
 					if (obj.data && obj.data.length > 0) {
-						var itemTpl = $('#itemUserAccount').html().split(/\$\{(.+?)\}/g);
-
+						var itemAccountTpl = $('#itemUserAccount').html().split(/\$\{(.+?)\}/g);
+						var itemTokenTpl = $('#itemUserToken').html().split(/\$\{(.+?)\}/g);
+						var itemReceiverTpl = $('#itemTokenReceiver').html().split(/\$\{(.+?)\}/g);
+						
 						$('.viewUserAccount').empty();
 						
 						$.each( obj.data, function( key, elm ) {
@@ -652,10 +780,13 @@ function requestGet(data) {
 								tokenIcon : elm.tokenIcon,
 								remain : elm.remain,
 								total : elm.total,
+								sentPerMonth : elm.sentPerMonth,
+								userToken : getTokenList(itemTokenTpl, elm.tokenList, elm.accountId),
+								tokenReceiver : getReceiverList(itemReceiverTpl, elm.receiverList, elm.accountId),
 								display : elm.suspended ? "" : "d-none"}];
 							$('.viewUserAccount').append(
 								items.map(function (item) {
-									return itemTpl.map(render(item)).join('');
+									return itemAccountTpl.map(render(item)).join('');
 								})
 							);
 						});
@@ -849,11 +980,11 @@ function requestPost(data) {
 						elm.data("dialog", 0);
 					}
 					
-					break;	
+					break;		
 				case "PushToken":
 					console.log(data);
-					break;	
-			}					
+					break;					
+			}			
 		}
 	).fail( function(xhr, textStatus, error) {
         $("#jsondata").text(xhr.status + " :: " + xhr.statusText + " :: " + xhr.responseText);

@@ -23,6 +23,7 @@ use modules\PushToken as PushToken;
 use modules\PushNotification as PushNotification;
 use modules\UserAccount as UserAccount;
 use modules\Community as Community;
+use modules\ChatMessage as ChatMessage;
 
 // Allow CORS
 if (isset($_SERVER['HTTP_ORIGIN'])) {
@@ -94,6 +95,19 @@ try {
 				$instance->doPost();
 			}
 			break;
+		case "CHATMESSAGE":
+			$instance = new ChatMessage($mysqli);		
+			if ($httpMethod == "GET") {
+				$userId = getParam($_SESSION, "USERID", "int");		
+				$page = getParam($_GET, "page", "int");	
+				$itemsPerPage = getParam($_GET, "itemsPerPage", "int");				
+				$senderId = getParam($_GET, "senderId", "int");				
+				$receiverId = getParam($_GET, "receiverId", "int");
+				$year = getParam($_GET, "year", "int");	
+				$month = getParam($_GET, "month", "int");
+				$instance->doGet($userId, $page, $itemsPerPage, $senderId, $receiverId, $year, $month);
+			}
+			break;		
 		case "PENDINGTRANSACTION":
 			$instance = new PendingTransaction($mysqli);		
 			if ($httpMethod == "GET") {

@@ -19,6 +19,7 @@ use modules\UserUpdate as UserUpdate;
 use modules\UserProfile as UserProfile; 
 use modules\Signup as Signup; 
 use modules\Community as Community; 
+use modules\ChatMessage as ChatMessage; 
 
 header("Content-Type: text/html; charset=utf-8");
 
@@ -214,7 +215,21 @@ try {
 		case "TXHISTORY":
 			$instance = new TxHistory($mysqli);
 			if ($httpMethod == "GET") {
-				$instance->doGet($userId, $lang);
+				$page = getParam($_GET, "page", "int");
+				$itemsPerPage = getParam($_GET, "itemsPerPage", "int");				
+				$senderId = getParam($_GET, "senderId"); 
+				$receiverId = getParam($_GET, "receiverId");
+				$instance->doGet($userId, $page, $itemsPerPage, $senderId, $receiverId, $lang);
+			}
+			break;
+		case "CHATMESSAGE":
+			$instance = new ChatMessage($mysqli);
+			if ($httpMethod == "GET") {
+				$page = getParam($_GET, "page", "int");
+				$itemsPerPage = getParam($_GET, "itemsPerPage", "int");				
+				$senderId = getParam($_GET, "senderId"); 
+				$receiverId = getParam($_GET, "receiverId");
+				$instance->doGet($userId, $page, $itemsPerPage, $senderId, $receiverId, $lang);
 			}
 			break;
 		case "USERHISTORY":

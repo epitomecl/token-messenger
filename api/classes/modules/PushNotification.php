@@ -8,7 +8,7 @@ namespace modules;
 */
 class PushNotification {
 	private static $URL  = "https://fcm.googleapis.com/fcm/send";  //API URL of FCM
-	private static $SERVER_ACCESS_KEY = 'AAAA4LxS8Jg:....-kqx'; // YOUR_FIREBASE_API_KEY
+	private static $SERVER_ACCESS_KEY = 'AAAA4LxS8Jg:APA91bF_cIHoXuaDy4UcwuAEiqQ0JW1dtfTPNRxRZ3u0BD6HnOygfp34UOr2LeqtBlhavsgk63ufozil_yobEmF9iBo6H7dYwMC22vCMwpQ0IwBHMpP9dNVMextZPkViQ4LRWtL_-kqx'; // YOUR_FIREBASE_API_KEY
  
 	public function __construct() {	}
 

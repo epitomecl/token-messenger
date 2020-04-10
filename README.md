@@ -90,7 +90,7 @@ account name, token name, token symbol, token image (256x256, png).
 
 ```
 token image (256x256, png)
-account name (Blueberry)
+account name (e.g. Blueberry)
 token name (e.g. Euro)
 token symbol (e.g. EUR)
 ```
@@ -114,3 +114,141 @@ Confirmed messages transfering the included token to the receiving account.
 Refused messages withdrawal the token back to the sender.
 </p>
 
+## API Overview
+
+<p align="justify">
+The API is callable by /inssa/api/ and without any param a test form comes up.
+In this test form every method and param set are testable.
+</p>
+
+### AccountSuspended
+
+<p align="justify">
+Set the given account ID on suspended or reactivate a suspended account by account ID.
+The column param must hold the column "suspended" for specifying the table column.
+</p>
+
+POST Input: 
+```
+accountId (int) 4, column (string) "suspended", checked (int) 0 or 1
+```
+
+POST Output:
+```
+{accountId: 4}
+```
+
+### Ballot
+
+<p align="justify">
+Was designed for voting next master of community. 
+Only member can vote. Member are users with at least one account.
+This Method is called by cron-job or manually.
+The main function contains clean up old votes (older then 30 days) and determined the winner of current vote.
+</p>
+
+### ChatMessage
+
+<p align="justify">
+This Module deliver the chat room list, when receiver is unknown.
+If receiver is known, then all messages between sender and receiver will shown.
+</p>
+
+GET Input:
+```
+userId (int), page (int), itemsPerPage (int), senderId (int), receiverId (int), year (int), month (int)
+```
+
+GET Output:
+
+<p align="justify">
+Json-object contains also a hashValue based on current data set (chat rooms or messages).  for checking data changes.
+</p>
+
+### Community
+
+<p align="justify">
+Community module gives an overview about all community members and information about current voting.
+</p>
+
+### DirectTokenTransfer
+
+<p align="justify">
+Direct transfer of quantity of owned unique token with specific message and without possibility of cancelation.
+</p>
+
+### Faucet
+
+<p align="justify">
+Minted new token and update the account balance and submit a direct transaction with automatic reference.
+</p>
+
+### NumberOfTokens
+
+<p align="justify">
+A Token Trading Status information is accessible to all users. 
+Gives a Number of tokens held by a specific account.
+</p>
+
+GET Input:
+```
+accountId (int), year (int), month (int)
+```
+
+### PendingTransaction
+
+List all pending transaction based on user between his sender accounts and receiver accounts.
+
+### PushNotification
+
+<p align="justify">
+Firebase push notification service. This module send a push notification 
+to a device specified by current device token.
+</p>
+
+### PushToken
+
+Service to register or delete a token for push notification in database.
+
+### Socket
+
+<p align="justify">
+Unfortunately this Service in combination with ratchet server was not working.
+Web-Sockets were not supported by current webhoster package.
+</p>
+
+### TokenTransactionDetail
+
+<p align="justify">
+A Token Trading Detail information is accessible to all users.
+It contains a Token transaction history sent and received by a specific account.
+</p>
+
+### TokenTransactionHistory
+
+<p align="justify">
+A Token Trading History information is accessible to all users.
+It contains Token transaction history sent and received by a specific account.
+The list is based on current month and year, if month or year are not given.
+</p>
+
+### TotalUserTokenHistory
+
+Total user token history about all accounts.
+
+### TotalUserTokenHoldings
+
+Provides a list about all unique tokens and received tokens by each account.
+
+### UserAccount
+
+<p align="justify">
+Provides a list over all user accounts by given user ID. 
+The result includes information about total unique token, received tokens, send tokens and currently send tokens and remain tokens.
+</p>
+
+### VerifiedTokenTransfer
+
+<p align="justify">
+Token transfer from one account to another account with prove of agreement and with using escrow account.
+</p>

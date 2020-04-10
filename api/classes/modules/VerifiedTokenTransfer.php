@@ -26,6 +26,7 @@ class VerifiedTokenTransfer extends DirectTokenTransfer {
 		$mysqli = $this->mysqli;		
 		$pendingId = 0;
 		$mustHave = count($receiverIds) * $quantity;
+		$tmpReceiverIds = array();
 		$data = array();
 		
 		if ($this->hasAccountQuantity($mysqli, $senderId, $mustHave)) {
@@ -34,6 +35,7 @@ class VerifiedTokenTransfer extends DirectTokenTransfer {
 					if ($this->hasAccountQuantity($mysqli, $senderId, $quantity)) {
 						if ($this->updateBalance($mysqli, $senderId, 0, $quantity)) {
 							$pendingId = $this->insertPending($mysqli, $senderId, $receiverId, $quantity, $reference);
+							array_push($tmpReceiverIds, $receiverId);
 						}
 					}
 				}
@@ -52,7 +54,9 @@ class VerifiedTokenTransfer extends DirectTokenTransfer {
 				array_push($data, $obj);					
 			}
 			
-			$this->sendPushNotification($mysqli, $receiverIds, $senderId, $quantity, $reference);
+			if (count($tmpReceiverIds) > 0) {
+				$this->sendPushNotification($mysqli, $tmpReceiverIds, $senderId, $quantity, $reference);
+			}
 		}
 		$obj = new \stdClass();
 		$obj->module = (new \ReflectionClass($this))->getShortName();

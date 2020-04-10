@@ -33,7 +33,12 @@ class UserAccount {
 			$obj->remain = $this->getUniqueTokenRemain($mysqli, $account->accountId);
 			$obj->total = $this->getUniqueTokenTotal($mysqli, $account->accountId);	
 			$obj->received = $this->getReceivedTokenTotal($mysqli, $account->accountId);
-			$obj->month = $this->getReceivedTokenMonth($mysqli, $account->accountId);	
+			$tokenData = $this->getReceivedTokenWithinTheCurrentMonth($mysqli, $account->accountId);
+			$obj->month = $tokenData->total;
+			$obj->tokenList = $tokenData->data;	
+			$receiverData = $this->getTokenReceiverWithinTheCurrentMonth($mysqli, $account->accountId);
+			$obj->sentPerMonth = $receiverData->total;
+			$obj->receiverList = $receiverData->data;	
 			$obj->suspended = $account->suspended;
 			array_push($data, $obj);
 		}
@@ -120,9 +125,10 @@ class UserAccount {
 		return $token;		
 	}
 		
-	private function getReceivedTokenMonth($mysqli, $accountId) {
-		$token = 0;	
-		$sql = "SELECT COUNT(balance.balance_id) AS token, account.account_id AS 'accountId', account.name AS 'account' ";
+	private function getReceivedTokenWithinTheCurrentMonth($mysqli, $accountId) {
+		$total = 0;	
+		$data = array();
+		$sql = "SELECT COUNT(balance.balance_id) AS token, account.account_id AS 'accountId', account.name AS 'account', account.icon, account.symbol, account.token AS tokenName ";
 		$sql .= "FROM balance ";
 		$sql .= "LEFT JOIN token ON (token.token_id = balance.token_id) ";
 		$sql .= "LEFT JOIN account ON (account.account_id = token.account_id) ";
@@ -134,15 +140,49 @@ class UserAccount {
 		
 		if ($result = $mysqli->query($sql)) {
 			while ($row = $result->fetch_assoc()) {
-				$token += intval($row["token"]);
+				array_push($data, $row);
+				$total += intval($row["token"]);
 			}
 		} else {
 			throw new Exception(sprintf("%s, %s", get_class($this), $sql.$mysqli->error), 507);
 		}
 		
-		return $token;
+		$obj = new \stdClass;
+		$obj->total = $total;
+		$obj->data = $data;
+		
+		return $obj;
 	}
 
+	private function getTokenReceiverWithinTheCurrentMonth($mysqli, $senderId) {
+		$total = 0;	
+		$data = array();
+		$sql = "SELECT IFNULL(account.account_id, 0) AS 'accountId', account.name AS 'receiverName', ";
+		$sql .= "SUM(quantity) AS token, ";
+		$sql .= "(SELECT symbol FROM account WHERE account.account_id = transaction.sender_id) AS 'symbol' ";		
+		$sql .= "FROM transaction ";
+		$sql .= "LEFT JOIN account ON (account.account_id = transaction.receiver_id)  ";
+		$sql .= sprintf("WHERE transaction.sender_id =%d ", $senderId);
+		$sql .= sprintf("AND YEAR(transaction.modified) = %d ", date("Y"));
+		$sql .= sprintf("AND MONTH(transaction.modified) = %d  ", date("m"));
+		$sql .= "GROUP BY account.account_id ";
+		$sql .= "ORDER BY transaction.modified DESC ";
+		if ($result = $mysqli->query($sql)) {
+			while ($row = $result->fetch_assoc()) {
+				array_push($data, $row);
+				$total += intval($row["token"]);
+			}
+		} else {
+			throw new Exception(sprintf("%s, %s", get_class($this), $sql.$mysqli->error), 507);
+		}
+		
+		$obj = new \stdClass;
+		$obj->total = $total;
+		$obj->data = $data;
+		
+		return $obj;
+	}
+	
 	private function getReceivedTokenTotal($mysqli, $accountId) {
 		$token = 0;		
 		$sql = "SELECT COUNT(balance.balance_id) AS token, account.account_id AS 'accountId', account.name AS 'account' ";

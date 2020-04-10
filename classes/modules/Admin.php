@@ -77,8 +77,8 @@ class Admin {
 	private function getData($mysqli, $page, $itemsPerPage, $searchText, $tokenName, $suspended) {
 		$total = 0;
 		$data = array();
-		
 		$where = array();
+		
 		if ($suspended == 1) {
 			array_push($where, sprintf("account.suspended=%d ", $suspended));
 		}	
@@ -116,9 +116,10 @@ class Admin {
 		// data
 		$sql = "SELECT DISTINCT account.account_id AS accountId, account.name AS accountName, account.suspended, ";
 		$sql .= "user.name AS userName, account.token AS tokenName, account.icon AS tokenIcon, account.symbol AS tokenSymbol, ";
-		$sql .= "date_format(account.modified, '%m/%d/%y %H:%i') AS datetime ";	
+		$sql .= "date_format(account.modified, '%m/%d/%Y %H:%i') AS datetime ";	
 		$sql .= "FROM account ";
 		$sql .= "LEFT JOIN user ON (user.user_id = account.user_id) ";
+		$sql .= "LEFT JOIN token ON (token.account_id = account.account_id) ";			
 		$sql .= "WHERE account.community = 0 ";
 		$sql .= implode("AND ", $where);
 		$sql .= "ORDER BY user.email, tokenName ";

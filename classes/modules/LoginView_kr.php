@@ -118,7 +118,7 @@
 	</div>
 </section>
 
-<footer class="page-footer font-small pt-4 fixed-bottom">
+<footer class="page-footer font-small pt-4">
 	<div class="footer-copyright text-center py-3">© <?php echo date("Y");?> Copyright:
 		<a href="https://epitomecl.com"> EpitomeCL.com</a>
 	</div>

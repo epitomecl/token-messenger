@@ -29,13 +29,15 @@ class TokenTransactionHistory {
 		$account = $this->getUserMainAccount($mysqli, $userId);
 		
 		if ($account->accountId == $senderId) {
-			$obj->data = $this->getDataSent($mysqli, $senderId, $year, $month, $showTransactionFaucet);
+			//$obj->data = $this->getDataSent($mysqli, $senderId, $year, $month, $showTransactionFaucet);
+			$obj->data = $this->getData($mysqli, $senderId, $receiverId, $year, $month, $showTransactionFaucet);
 			$obj->view = 'sent';
 		} else if ($account->accountId == $receiverId) {
-			$obj->data = $this->getDataReceived($mysqli, $receiverId, $year, $month, $showTransactionFaucet);
+			//$obj->data = $this->getDataReceived($mysqli, $receiverId, $year, $month, $showTransactionFaucet);
+			$obj->data = $this->getData($mysqli, $senderId, $receiverId, $year, $month, $showTransactionFaucet);
 			$obj->view = 'received';
 		} else {
-			$obj->data = $this->getDataOthers($mysqli, $senderId, $receiverId, $year, $month, $showTransactionFaucet);
+			$obj->data = $this->getData($mysqli, $senderId, $receiverId, $year, $month, $showTransactionFaucet);
 			$obj->view = 'others';
 		}
 
@@ -55,6 +57,7 @@ class TokenTransactionHistory {
 		$sql .= "FROM account ";
 		$sql .= "LEFT JOIN user ON (user.user_id = account.user_id) ";
 		$sql .= sprintf("WHERE account.user_id = %d ", $userId);
+		$sql .= "ORDER BY account.suspended, account.name ";
 		$sql .= "LIMIT 0,1;";
 		
 		$data = new \stdClass();
@@ -182,5 +185,57 @@ class TokenTransactionHistory {
 		}
 
 		return $data;		
+	}
+	
+	private function getData($mysqli, $senderId, $receiverId, $year, $month, $includeFaucet) {
+		$data = array();		
+		$sql = "SELECT transaction_id AS transactionId, ";
+		$sql .= "IFNULL(transaction.sender_id, 0) AS 'senderId', ";
+		$sql .= "IFNULL((SELECT account.name FROM account WHERE account.account_id = transaction.sender_id), 'Faucet')  AS 'senderName', ";
+		$sql .= "IFNULL(transaction.receiver_id, 0) AS 'receiverId', ";
+		$sql .= "(SELECT account.name FROM account WHERE account.account_id = transaction.receiver_id) AS 'receiverName', ";
+		$sql .= "quantity, account.token, account.symbol, account.icon, reference, status, supplement, ";
+		$sql .= "date_format(transaction.created, '%m/%d/%Y %H:%i') AS created, ";
+		$sql .= "date_format(transaction.modified, '%m/%d/%Y %H:%i') AS modified ";
+		$sql .= "FROM transaction ";
+		$sql .= "LEFT JOIN account ON (account.account_id = IF(transaction.sender_id = 0, transaction.receiver_id, transaction.sender_id)) ";
+		$sql .= "WHERE transaction.transaction_id > 0 ";
+		if ($year > 0) {
+			$sql .= sprintf("AND YEAR(transaction.modified) = %d ", $year);
+		}
+		if ($month > 0) {
+			$sql .= sprintf("AND MONTH(transaction.modified) = %d ", $month);
+		}
+		$sql .= "AND ( ";
+		if ($senderId > 0) {
+			$sql .= sprintf("transaction.sender_id = %d ", $senderId);
+		} else {
+			$sql .= sprintf("transaction.sender_id > %d ", $senderId);
+		}
+		$sql .= "AND ";
+		if ($receiverId > 0) {
+			$sql .= sprintf("transaction.receiver_id = %d ", $receiverId);
+		} else {
+			$sql .= sprintf("transaction.receiver_id > %d ", $receiverId);
+		}
+		if ($includeFaucet) {	
+			if ($receiverId > 0) {
+				$sql .= sprintf("OR (sender_id = 0 AND receiver_id = %d) ", $receiverId);
+			} else {
+				$sql .= sprintf("OR (sender_id = 0 AND receiver_id > %d) ", $receiverId);
+			}
+		}
+		$sql .= ") ";
+		$sql .= "ORDER BY transaction.modified DESC;";
+		
+		if ($result = $mysqli->query($sql)) {
+			while ($row = $result->fetch_assoc()) {
+				array_push($data, $row);
+			}
+		} else {
+			throw new Exception(sprintf("%s, %s", get_class($this), $sql.$mysqli->error), 507);
+		}
+
+		return $data;	
 	}
 }

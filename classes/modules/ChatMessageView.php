@@ -56,10 +56,10 @@
 			</li>
 			<?php if ($isMember): ?>
 			<li class="nav-item">
-				<a class="nav-link" href="<?php echo $_SERVER['PHP_SELF']; ?>?module=chatmessage">My Messages</a>
-			</li>			
+				<a class="nav-link active" href="<?php echo $_SERVER['PHP_SELF']; ?>?module=chatmessage">My Messages</a>
+			</li>
 			<li class="nav-item">
-				<a class="nav-link active" href="<?php echo $_SERVER['PHP_SELF']; ?>?module=txhistory">Tx History</a>
+				<a class="nav-link" href="<?php echo $_SERVER['PHP_SELF']; ?>?module=txhistory">Tx History</a>
 			</li>	  
 			<li class="nav-item">
 				<a class="nav-link" href="<?php echo $_SERVER['PHP_SELF']; ?>?module=userhistory">User History</a>
@@ -93,138 +93,63 @@
 
 <section class="container-section bg-light">	
 	<div class="container-fluid mb-4">
-		<div class="row pb-4">
-			<div class="col-sm-5">
-				<h2>Token Transaction History</h2>
-			</div>
-			<div class="col-sm-7">
-				<div class="btn-toolbar justify-content-end">
-				<button type="button" class="btn ml-1 mb-1">행 수:</button>
-					<select class="btn btn-outline-info ml-1 mb-1" id="itemsPerPage" name="itemsPerPage" onchange="if(this.value != 0) { this.form.submit(); }">
-					<?php for ($index = 25; $index <= 250; $index+=25): ?>
-					<?php printf("<option value=\"%d\"%s>%s</option>", $index, ($index == $itemsPerPage) ? " selected=\"selected\"": "", $index); ?>
-					<?php endfor; ?>
-					</select>	
-					<button type="button" class="btn btn-outline-info ml-1 mb-1">Total: <?php echo $total; ?></button>
-					<button type="button" class="btn btn-outline-warning ml-1 mb-1" data-toggle="collapse" data-target="#filter">Filter</button>		
-					<button type="button" class="btn btn-outline-success ml-1 mb-1">Submit »</button>
-				</div>
-			</div>
-		</div>
-		<div id="filter" class="collapse">
+	
+		<form method="get" action="<?php echo $_SERVER['PHP_SELF']; ?>" name="filter">
+			<input type="hidden" name="module" value="chatmessage">	
+			<input type="hidden" name="NGINX" value="" />
 			<div class="row pb-4">
-				<div class="col-sm-12">	
-					<!-- Nav tabs -->
-					<ul class="nav nav-tabs">
-						<li class="nav-item">
-							<a class="nav-link <?php echo ($sent) ? "active" : ""; ?>" data-toggle="tab" href="#sent">I Sent</a>
-						</li>
-						<li class="nav-item">
-							<a class="nav-link <?php echo (!$sent) ? "active" : ""; ?>" data-toggle="tab" href="#received">I Received</a>
-						</li>
-						<li class="nav-item">
-							<a class="nav-link" data-toggle="tab" href="#others">Others</a>
-						</li>
-					</ul>				
+				<div class="col-sm-5">
+					<h2>My Messages</h2>
+				</div>
+				<div class="col-sm-7">
+					<div class="btn-toolbar justify-content-end">
+					<button type="button" class="btn ml-1 mb-1">Number of rows:</button>
+						<select class="btn btn-outline-info ml-1 mb-1" id="itemsPerPage" name="itemsPerPage" onchange="if(this.value != 0) { this.form.submit(); }">
+						<?php for ($index = 25; $index <= 250; $index+=25): ?>
+						<?php printf("<option value=\"%d\"%s>%s</option>", $index, ($index == $itemsPerPage) ? " selected=\"selected\"": "", $index); ?>
+						<?php endfor; ?>
+						</select>	
+						<button type="button" class="btn btn-outline-info ml-1 mb-1">Total: <div class="total d-inline-block"><?php echo $total; ?></div></button>
+						<button type="button" class="btn btn-outline-warning ml-1 mb-1" data-toggle="collapse" data-target="#filter">Filter</button>		
+						<button type="button" class="btn btn-outline-success module ml-1 mb-1">Submit »</button>
+					</div>
 				</div>
 			</div>
-			<div class="row pb-4">
-				<div class="col-sm-12">
-					<div class="tab-content">
-						<div id="sent" class="tab-pane <?php echo ($sent) ? "active" : "fade"; ?>">					
-							<form method="get" action="<?php echo $_SERVER['PHP_SELF']; ?>">
-								<input type="hidden" name="NGINX" value="" />
-								<input type="hidden" name="module" value="TokenTransactionHistory">
-								<?php if (count($arrOptionUserAccount) > 1): ?>
-								<label for="senderId_sent" class="mr-sm-2">from:</label>
-								<select class="form-control mb-2 mr-sm-2" id="senderId_sent" name="senderId">
-									<?php echo implode("\n", $arrOptionUserAccount); ?>
-								<select>
-								<?php else: ?>
-								<input type="hidden" name="senderId" value="<?php echo intval($mainAccount->accountId); ?>">
-								<?php endif; ?>
-								<label for="receiverId_sent" class="mr-sm-2">to:</label>
-								<select class="form-control mb-2 mr-sm-2" id="receiverId_sent" name="receiverId">
-									<option value="0">all...</option>
-									<?php echo implode("\n", $arrOptionAccount); ?>
-								<select>
-								<label for="year" class="mr-sm-2">year:</label>
-								<select class="form-control mb-2 mr-sm-2" name="year"><?php echo $txtOptionYear; ?><select>				
-								<label for="month" class="mr-sm-2">month:</label>
-								<select class="form-control mb-2 mr-sm-2" name="month"><?php echo $txtOptionMonth; ?><select>
-								<button type="button" class="btn btn-primary module mt-2 mb-2">Submit</button>			
-							</form>							
-						</div>
-						<div id="received" class="tab-pane <?php echo (!$sent) ? "active" : "fade"; ?>">						
-							<form method="get" action="<?php echo $_SERVER['PHP_SELF']; ?>">
-								<input type="hidden" name="NGINX" value="" />
-								<input type="hidden" name="module" value="TokenTransactionHistory">
-								<label for="senderId_received" class="mr-sm-2">from:</label>
-								<select class="form-control mb-2 mr-sm-2" id="senderId_received" name="senderId">
-									<option value="0">all...</option>
-									<?php echo implode("\n", $arrOptionAccount); ?>
-								<select>					
-								<?php if (count($arrOptionUserAccount) > 1): ?>
-								<label for="receiverId_received" class="mr-sm-2">to:</label>
-								<select class="form-control mb-2 mr-sm-2" id="receiverId_received" name="receiverId">
-									<?php echo implode("\n", $arrOptionUserAccount); ?>
-								<select>
-								<?php else: ?>
-								<input type="hidden" name="receiverId" value="<?php echo intval($mainAccount->accountId); ?>">
-								<?php endif; ?>
-								<label for="year" class="mr-sm-2">year:</label>
-								<select class="form-control mb-2 mr-sm-2" name="year"><?php echo $txtOptionYear; ?><select>				
-								<label for="month" class="mr-sm-2">month:</label>
-								<select class="form-control mb-2 mr-sm-2" name="month"><?php echo $txtOptionMonth; ?><select>
-								<button type="button" class="btn btn-outline-info text-dark">
-									<div class="form-check">
-										<label class="form-check-label cursor-pointer">
-											<input type="checkbox" class="form-check-input cursor-pointer" name="includeFaucet" value="1">include Faucet Transaction
-										</label>
-									</div>
-								</button>							
-								<button type="button" class="btn btn-primary module mt-2 mb-2">Submit</button>		
-							</form>							
-						</div>
-						<div id="others" class="tab-pane fade">						
-							<form method="get" action="<?php echo $_SERVER['PHP_SELF']; ?>">
-								<input type="hidden" name="NGINX" value="" />
-								<input type="hidden" name="module" value="TokenTransactionHistory">
-								<label for="senderId_others" class="mr-sm-2">from:</label>
-								<select class="form-control mb-2 mr-sm-2" id="senderId_others" name="senderId">
-									<option value="0">all...</option>
-									<?php echo implode("\n", $arrOptionAccount); ?>
-								<select>					
-								<label for="receiverId_others" class="mr-sm-2">to:</label>
-								<select class="form-control mb-2 mr-sm-2" id="receiverId_others" name="receiverId">
-									<option value="0">all...</option>
-									<?php echo implode("\n", $arrOptionAccount); ?>
-								<select>
-								<label for="year" class="mr-sm-2">year:</label>
-								<select class="form-control mb-2 mr-sm-2" name="year"><?php echo $txtOptionYear; ?><select>				
-								<label for="month" class="mr-sm-2">month:</label>
-								<select class="form-control mb-2 mr-sm-2" name="month"><?php echo $txtOptionMonth; ?><select>	
-								<button type="button" class="btn btn-outline-info text-dark">
-									<div class="form-check">
-										<label class="form-check-label cursor-pointer">
-											<input type="checkbox" class="form-check-input cursor-pointer" name="includeFaucet" value="1">include Faucet Transaction
-										</label>
-									</div>
-								</button>
-								<button type="button" class="btn btn-primary module mt-2 mb-2">Submit</button>	
-							</form>							
-						</div>
-					</div>	
+			<div id="filter" class="collapse">
+				<div class="row pb-4">
+					<div class="col-sm-12">
+						<?php if (count($arrOptionUserAccount) > 1): ?>
+						<label for="senderId_sent" class="mr-sm-2">between</label>
+						<select class="form-control mb-2 mr-sm-2" id="senderId_sent" name="senderId">
+							<?php echo implode("\n", $arrOptionUserAccount); ?>
+						<select>
+						<?php else: ?>
+						between me
+						<input type="hidden" name="senderId" value="<?php echo intval($mainAccount->accountId); ?>">
+						<?php endif; ?>					
+						<label for="receiverId" class="mr-sm-2">and</label>
+						<select class="form-control mb-2 mr-sm-2" id="receiverId" name="receiverId">
+							<option value="0">Faucet</option>
+							<?php echo implode("\n", $arrOptionAccount); ?>
+						<select>
+						<label for="year" class="mr-sm-2">year:</label>
+						<select class="form-control mb-2 mr-sm-2" name="year"><?php echo $txtOptionYear; ?><select>				
+						<label for="month" class="mr-sm-2">month:</label>
+						<select class="form-control mb-2 mr-sm-2" name="month"><?php echo $txtOptionMonth; ?><select>	
+					</div>
 				</div>
 			</div>
-		</div>
+		</form>
 		<div class="row pb-4">
 			<div class="col-sm-12">
-				<div class="viewTokenTransactionHistory">
-					<h4 class="mt-3">Result table &quot;<?php echo ($sent) ? "I Sent" : "I Received"; ?>&quot;</h4>
+				<div class="viewChatMessage">
+					<h4 class="mt-3">Result table</h4>
 					<div class="history mt-4">
 					<?php foreach ($data as $row): ?>
-						<div class="card border-<?php echo trim($row["status"]); ?> mt-4">
+						<div class="card border-<?php echo trim($row["status"]); ?> mt-4 cursor-pointer" data-senderId="<?php echo intval($row["senderId"]); ?>" data-receiverId="<?php echo intval($row["accountId"]); ?>">
+							<?php if (intval($row["accountId"]) > 0): ?>
+							<div class="card-header">Chatroom <?php echo trim($row["userName"]); ?></div>
+							<?php endif; ?>	
 							<div class="card-body">
 								<div class="row">
 									<div class="col-sm-3 pb-4">
@@ -252,27 +177,13 @@
 									</div>
 								</div>
 							</div>
-						</div>
+						</div>	
 					<?php endforeach; ?>
 					</div>
 				</div>
-				<template id="viewTokenTransactionHistorySent">
-					<h4 class="mt-3">Result table &quot;I Sent&quot;</h4>
-					<div class="history mt-4">
-					</div>
-				</template>				
-				<template id="viewTokenTransactionHistoryReceived">
-					<h4 class="mt-3">Result table &quot;I Received&quot;</h4>
-					<div class="history mt-4">
-					</div>
-				</template>				
-				<template id="viewTokenTransactionHistoryOthers">
-					<h4 class="mt-3">Result table &quot;Others&quot;</h4>
-					<div class="history mt-4">
-					</div>
-				</template>					
-				<template id="itemTokenTransactionHistory">
-					<div class="card border-${status} mt-4">
+				<template id="itemChatMessage">
+					<div class="card border-${status} mt-4 cursor-pointer" data-senderId="${senderId}" data-receiverId="${accountId}">
+						<div class="card-header ${display}">Chatroom ${userName}</div>
 						<div class="card-body">
 							<div class="row">
 								<div class="col-sm-3 pb-4">
@@ -284,7 +195,7 @@
 								</div>
 								<div class="col-sm-9">
 									<div class="row">
-										<div class="col">${senderName}</div>
+										<div class="col">${senderName}:</div>
 										<div class="col-sm-10">
 											<p>${reference}</p>
 											<p>${created}</p>
@@ -348,65 +259,10 @@
 	</div>
 </footer>
 
-<div class="modal fade" id="dialogDetail">
-    <div class="modal-dialog modal-dialog-centered">
-		<div class="modal-content">
-			<div class="modal-header">
-			  <h4 class="modal-title">Tx Transaction Details</h4>
-			  <button type="button" class="close" data-dismiss="modal">×</button>
-			</div>
-			<div class="modal-body">
-				<div class="row mb-3">
-					<div class="col-sm-12 result">
-						... 곧 온다
-					</div>
-					<template id="viewTransactionDetails">
-					<table class="table table-striped">
-					<thead>
-						<th>Action</th><th>Actor</th><th>Quantity</th><th>Text</th><th>Date</th>
-					</thead>
-					<tbody>
-						<tr>
-							<td>Send</td><td>${senderName}</td><td>${quantity}</td><td>${reference}</th><td>${created}</td>
-						</tr>
-						<tr>
-							<td>${status}</td><td>${receiverName}</td><td> </td><td>${supplement}</th><td>${modified}</td>
-						</tr>
-					</tbody>
-					</table>
-					</template>
-				</div>
-			</div>
-			<div class="modal-footer">
-			  <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-			</div>
-		</div>
-    </div>
-</div>
-
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
 <script type="text/javascript">
-
-$(".viewTokenTransactionHistory").on("click", ".btn", function(event) {
-	event.preventDefault();
-	event.stopPropagation();
-	
-	var formData = new FormData();
-	
-	formData.append("module", "TokenTransactionDetail");
-	formData.append("transactionId", $(this).data("transactionid"));
-	
-	$("#dialogDetail").data("formData", formData);
-	
-	var query = new Array();
-	for (var pair of formData.entries()) {
-		query.push(pair[0] + "=" + pair[1]); 
-	}
-
-	requestGet(query.join("&"));		
-});
 
 $(".module").on("click", function(event) {
 	event.preventDefault();
@@ -414,104 +270,25 @@ $(".module").on("click", function(event) {
 	
 	var form = $(this).parents('form:first');
 
-	if (form.find("#checkboxDirectTokenTransfer").length > 0){
-		if (form.find("#checkboxDirectTokenTransfer").is(":checked")) {
-			form.find('input:hidden[name=module]').val("DirectTokenTransfer");
-		} else {
-			form.find('input:hidden[name=module]').val("VerifiedTokenTransfer");
-		}
-	}
-	
-	if (form.prop("method") == "post") {
-		requestPost(form.serialize());
-	} else {
-		requestGet(form.serialize());
-	}
+	requestGet(form.serialize());
 });
 
-$(".viewPendingTransaction").on("click", ".card", function(event) {
+$(".viewChatMessage").on("click", ".card", function(event) {
 	event.preventDefault();
 	event.stopPropagation();
 	
-	var NGINX = $(this).data("nginx");
-	var dialog = $(this).data("dialog");
-	var formData = new FormData();
+	var senderId = $(this).data("senderid");
+	var receiverId = $(this).data("receiverid");
+	var form = $(".module").parents('form:first');
 	
-	formData.append("module", "VerifiedTokenTransfer");
-	formData.append("pendingId", $(this).data("pendingid"));
-	formData.append("accountId", $(this).data("accountid"));
-	formData.append("NGINX", NGINX);
-	
-	if (dialog && dialog == 1) {
-		switch (NGINX) {
-			case "PUT":
-				$("#dialogPut").data("formData", formData);
-				$("#dialogPut").modal();
-				break;
-			case "DELETE":
-				$("#dialogDelete").data("formData", formData);
-				$("#dialogDelete").modal();
-				break;
-		}
-	}
+	form.find('select[name=senderId]').val(senderId).change();
+	form.find('select[name=receiverId]').val(receiverId).change();
+	form.find('select[name=year]').val(0).change();
+	form.find('select[name=month]').val(0).change();
+
+	requestGet(form.serialize());	
 });
-
-$("#dialogDelete .modal-body").on("click", "button.btn-success", function(event) {
-	event.preventDefault();
-	event.stopPropagation();
-		
-	$("#dialogDelete").modal("hide");
 	
-	var formData = $("#dialogDelete").data("formData");
-	formData.append("confirmed", 1);
-	formData.append("message", $("#dialogDelete").find(".message").val());
-	
-	var query = new Array();
-	for (var pair of formData.entries()) {
-		query.push(pair[0] + "=" + pair[1]); 
-	}
-
-	requestPost(query.join("&"));	
-});
-
-$("#dialogPut .modal-body").on("click", "button.btn-success", function(event) {
-	event.preventDefault();
-	event.stopPropagation();
-		
-	$("#dialogPut").modal("hide");
-	
-	var formData = $("#dialogPut").data("formData");
-	formData.append("confirmed", 1);
-	formData.append("message", $("#dialogPut").find(".message").val());
-	
-	var query = new Array();
-	for (var pair of formData.entries()) {
-		query.push(pair[0] + "=" + pair[1]); 
-	}
-
-	requestPost(query.join("&"));	
-});
-
-$("#dialogPut .modal-body").on("click", "button.btn-warning", function(event) {
-	event.preventDefault();
-	event.stopPropagation();
-		
-	$("#dialogPut").modal("hide");
-	
-	var formData = $("#dialogPut").data("formData");
-	formData.append("confirmed", 0);
-	formData.append("message", $("#dialogPut").find(".message").val());
-	
-	if (formData.get("NGINX") == "PUT") {
-		var query = new Array();
-		for (var pair of formData.entries()) {
-			query.push(pair[0] + "=" + pair[1]); 
-		}
-		
-		requestPost(query.join("&"));
-	}
-});
-
 function requestGet(data) {
 	$.get(
 		"/inssa/api/", data
@@ -543,36 +320,21 @@ function requestGet(data) {
 						});
 					}
 					break;
-				case "TokenTransactionHistory":
+				case "ChatMessage":
 					if (obj.data) {
-						$('.viewTokenTransactionHistory').empty();
-						var viewTpl = "";
-						var itemTpl = "";
-						switch (obj.view) {
-							case "sent":
-								viewTpl = $('#viewTokenTransactionHistorySent').html().split(/\$\{(.+?)\}/g);
-								itemTpl = $('#itemTokenTransactionHistory').html().split(/\$\{(.+?)\}/g);
-								break;
-							case "received":
-								viewTpl = $('#viewTokenTransactionHistoryReceived').html().split(/\$\{(.+?)\}/g);
-								itemTpl = $('#itemTokenTransactionHistory').html().split(/\$\{(.+?)\}/g);
-								break;
-							case "others":
-								viewTpl = $('#viewTokenTransactionHistoryOthers').html().split(/\$\{(.+?)\}/g);
-								itemTpl = $('#itemTokenTransactionHistory').html().split(/\$\{(.+?)\}/g);
-								break;
-						}
-						var view = [{ foo: "foo"}];
-						$('.viewTokenTransactionHistory').html(view.map(function (item) {
-							return viewTpl.map(render(item)).join('');
-						}));						
-						var items = obj.data;
-						$('.viewTokenTransactionHistory div.history').empty();
-						$('.viewTokenTransactionHistory div.history').append(
-							items.map(function (item) {
-								return itemTpl.map(render(item)).join('');
-							})
-						);
+						var itemTpl = $('#itemChatMessage').html().split(/\$\{(.+?)\}/g);
+						$('.viewChatMessage div.history').empty();
+						
+						$.each( obj.data, function( key, elm ) {
+							elm.display = elm.accountId > 0 ? "" : "d-none";
+							var items = [elm];
+							$('.viewChatMessage div.history').append(
+								items.map(function (item) {
+									return itemTpl.map(render(item)).join('');
+								})
+							);
+						});
+						$('.total').html(obj.total);
 					}
 					break;
 				case "TokenTransactionDetail":
@@ -592,7 +354,7 @@ function requestGet(data) {
 							})
 						);						
 					}
-					break;					
+					break;
 				case "TotalUserTokenHistory":
 					var itemTpl = $('#itemTotalUserTokenHistory').html().split(/\$\{(.+?)\}/g);
 

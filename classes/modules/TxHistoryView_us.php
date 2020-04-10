@@ -22,9 +22,14 @@
 .cursor-pointer {
   cursor: pointer;
 }
-.footer-background {
-	background: #CECECE;
-	opacity: 0.5;
+.border-confirmed {
+	border-color:#28a745!important;
+}
+.border-rejected {
+	border-color:#dc3545!important;
+}
+.border-withdrawal {
+	border-color:#ffc107!important;
 }
  </style>
 </head>
@@ -50,6 +55,9 @@
 				<a class="nav-link" href="<?php echo $_SERVER['PHP_SELF']; ?>?module=userprofile">My Profile</a>		
 			</li>
 			<?php if ($isMember): ?>
+			<li class="nav-item">
+				<a class="nav-link" href="<?php echo $_SERVER['PHP_SELF']; ?>?module=chatmessage">My Messages</a>
+			</li>			
 			<li class="nav-item">
 				<a class="nav-link active" href="<?php echo $_SERVER['PHP_SELF']; ?>?module=txhistory">Tx History</a>
 			</li>	  
@@ -86,222 +94,231 @@
 <section class="container-section bg-light">	
 	<div class="container-fluid mb-4">
 		<div class="row pb-4">
-			<div class="col-sm-12">
+			<div class="col-sm-5">
 				<h2>Token Transaction History</h2>
-				<!-- Nav tabs -->
-				<ul class="nav nav-tabs">
-					<li class="nav-item">
-						<a class="nav-link active" data-toggle="tab" href="#sent">I Sent</a>
-					</li>
-					<li class="nav-item">
-						<a class="nav-link" data-toggle="tab" href="#received">I Received</a>
-					</li>
-					<li class="nav-item">
-						<a class="nav-link" data-toggle="tab" href="#others">Others</a>
-					</li>
-				</ul>				
+			</div>
+			<div class="col-sm-7">
+				<div class="btn-toolbar justify-content-end">
+				<button type="button" class="btn ml-1 mb-1">Number of rows:</button>
+					<select class="btn btn-outline-info ml-1 mb-1" id="itemsPerPage" name="itemsPerPage" onchange="if(this.value != 0) { this.form.submit(); }">
+					<?php for ($index = 25; $index <= 250; $index+=25): ?>
+					<?php printf("<option value=\"%d\"%s>%s</option>", $index, ($index == $itemsPerPage) ? " selected=\"selected\"": "", $index); ?>
+					<?php endfor; ?>
+					</select>	
+					<button type="button" class="btn btn-outline-info ml-1 mb-1">Total: <?php echo $total; ?></button>
+					<button type="button" class="btn btn-outline-warning ml-1 mb-1" data-toggle="collapse" data-target="#filter">Filter</button>		
+					<button type="button" class="btn btn-outline-success ml-1 mb-1">Submit »</button>
+				</div>
+			</div>
+		</div>
+		<div id="filter" class="collapse">
+			<div class="row pb-4">
+				<div class="col-sm-12">	
+					<!-- Nav tabs -->
+					<ul class="nav nav-tabs">
+						<li class="nav-item">
+							<a class="nav-link <?php echo ($sent) ? "active" : ""; ?>" data-toggle="tab" href="#sent">I Sent</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link <?php echo (!$sent) ? "active" : ""; ?>" data-toggle="tab" href="#received">I Received</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" data-toggle="tab" href="#others">Others</a>
+						</li>
+					</ul>				
+				</div>
+			</div>
+			<div class="row pb-4">
+				<div class="col-sm-12">
+					<div class="tab-content">
+						<div id="sent" class="tab-pane <?php echo ($sent) ? "active" : "fade"; ?>">					
+							<form method="get" action="<?php echo $_SERVER['PHP_SELF']; ?>">
+								<input type="hidden" name="NGINX" value="" />
+								<input type="hidden" name="module" value="TokenTransactionHistory">
+								<?php if (count($arrOptionUserAccount) > 1): ?>
+								<label for="senderId_sent" class="mr-sm-2">from:</label>
+								<select class="form-control mb-2 mr-sm-2" id="senderId_sent" name="senderId">
+									<?php echo implode("\n", $arrOptionUserAccount); ?>
+								<select>
+								<?php else: ?>
+								<input type="hidden" name="senderId" value="<?php echo intval($mainAccount->accountId); ?>">
+								<?php endif; ?>
+								<label for="receiverId_sent" class="mr-sm-2">to:</label>
+								<select class="form-control mb-2 mr-sm-2" id="receiverId_sent" name="receiverId">
+									<option value="0">all...</option>
+									<?php echo implode("\n", $arrOptionAccount); ?>
+								<select>
+								<label for="year" class="mr-sm-2">year:</label>
+								<select class="form-control mb-2 mr-sm-2" name="year"><?php echo $txtOptionYear; ?><select>				
+								<label for="month" class="mr-sm-2">month:</label>
+								<select class="form-control mb-2 mr-sm-2" name="month"><?php echo $txtOptionMonth; ?><select>
+								<button type="button" class="btn btn-primary module mt-2 mb-2">Submit</button>			
+							</form>							
+						</div>
+						<div id="received" class="tab-pane <?php echo (!$sent) ? "active" : "fade"; ?>">						
+							<form method="get" action="<?php echo $_SERVER['PHP_SELF']; ?>">
+								<input type="hidden" name="NGINX" value="" />
+								<input type="hidden" name="module" value="TokenTransactionHistory">
+								<label for="senderId_received" class="mr-sm-2">from:</label>
+								<select class="form-control mb-2 mr-sm-2" id="senderId_received" name="senderId">
+									<option value="0">all...</option>
+									<?php echo implode("\n", $arrOptionAccount); ?>
+								<select>					
+								<?php if (count($arrOptionUserAccount) > 1): ?>
+								<label for="receiverId_received" class="mr-sm-2">to:</label>
+								<select class="form-control mb-2 mr-sm-2" id="receiverId_received" name="receiverId">
+									<?php echo implode("\n", $arrOptionUserAccount); ?>
+								<select>
+								<?php else: ?>
+								<input type="hidden" name="receiverId" value="<?php echo intval($mainAccount->accountId); ?>">
+								<?php endif; ?>
+								<label for="year" class="mr-sm-2">year:</label>
+								<select class="form-control mb-2 mr-sm-2" name="year"><?php echo $txtOptionYear; ?><select>				
+								<label for="month" class="mr-sm-2">month:</label>
+								<select class="form-control mb-2 mr-sm-2" name="month"><?php echo $txtOptionMonth; ?><select>
+								<button type="button" class="btn btn-outline-info text-dark">
+									<div class="form-check">
+										<label class="form-check-label cursor-pointer">
+											<input type="checkbox" class="form-check-input cursor-pointer" name="includeFaucet" value="1">include Faucet Transaction
+										</label>
+									</div>
+								</button>							
+								<button type="button" class="btn btn-primary module mt-2 mb-2">Submit</button>		
+							</form>							
+						</div>
+						<div id="others" class="tab-pane fade">						
+							<form method="get" action="<?php echo $_SERVER['PHP_SELF']; ?>">
+								<input type="hidden" name="NGINX" value="" />
+								<input type="hidden" name="module" value="TokenTransactionHistory">
+								<label for="senderId_others" class="mr-sm-2">from:</label>
+								<select class="form-control mb-2 mr-sm-2" id="senderId_others" name="senderId">
+									<option value="0">all...</option>
+									<?php echo implode("\n", $arrOptionAccount); ?>
+								<select>					
+								<label for="receiverId_others" class="mr-sm-2">to:</label>
+								<select class="form-control mb-2 mr-sm-2" id="receiverId_others" name="receiverId">
+									<option value="0">all...</option>
+									<?php echo implode("\n", $arrOptionAccount); ?>
+								<select>
+								<label for="year" class="mr-sm-2">year:</label>
+								<select class="form-control mb-2 mr-sm-2" name="year"><?php echo $txtOptionYear; ?><select>				
+								<label for="month" class="mr-sm-2">month:</label>
+								<select class="form-control mb-2 mr-sm-2" name="month"><?php echo $txtOptionMonth; ?><select>	
+								<button type="button" class="btn btn-outline-info text-dark">
+									<div class="form-check">
+										<label class="form-check-label cursor-pointer">
+											<input type="checkbox" class="form-check-input cursor-pointer" name="includeFaucet" value="1">include Faucet Transaction
+										</label>
+									</div>
+								</button>
+								<button type="button" class="btn btn-primary module mt-2 mb-2">Submit</button>	
+							</form>							
+						</div>
+					</div>	
+				</div>
 			</div>
 		</div>
 		<div class="row pb-4">
 			<div class="col-sm-12">
-				<div class="tab-content">
-					<div id="sent" class="tab-pane active">					
-						<form method="get" action="<?php echo $_SERVER['PHP_SELF']; ?>">
-							<input type="hidden" name="NGINX" value="" />
-							<input type="hidden" name="module" value="TokenTransactionHistory">
-							<?php if (count($arrOptionUserAccount) > 1): ?>
-							<label for="senderId_sent" class="mr-sm-2">from:</label>
-							<select class="form-control mb-2 mr-sm-2" id="senderId_sent" name="senderId">
-								<?php echo implode("\n", $arrOptionUserAccount); ?>
-							<select>
-							<?php else: ?>
-							<input type="hidden" name="senderId" value="<?php echo intval($mainAccount->accountId); ?>">
-							<?php endif; ?>
-							<label for="receiverId_sent" class="mr-sm-2">to:</label>
-							<select class="form-control mb-2 mr-sm-2" id="receiverId_sent" name="receiverId">
-								<option value="0">all...</option>
-								<?php echo implode("\n", $arrOptionAccount); ?>
-							<select>
-							<label for="year" class="mr-sm-2">year:</label>
-							<select class="form-control mb-2 mr-sm-2" name="year"><?php echo $txtOptionYear; ?><select>				
-							<label for="month" class="mr-sm-2">month:</label>
-							<select class="form-control mb-2 mr-sm-2" name="month"><?php echo $txtOptionMonth; ?><select>
-							<button type="button" class="btn btn-primary module mt-2 mb-2">Submit</button>			
-						</form>							
-					</div>
-					<div id="received" class="tab-pane fade">						
-						<form method="get" action="<?php echo $_SERVER['PHP_SELF']; ?>">
-							<input type="hidden" name="NGINX" value="" />
-							<input type="hidden" name="module" value="TokenTransactionHistory">
-							<label for="senderId_received" class="mr-sm-2">from:</label>
-							<select class="form-control mb-2 mr-sm-2" id="senderId_received" name="senderId">
-								<option value="0">all...</option>
-								<?php echo implode("\n", $arrOptionAccount); ?>
-							<select>					
-							<?php if (count($arrOptionUserAccount) > 1): ?>
-							<label for="receiverId_received" class="mr-sm-2">to:</label>
-							<select class="form-control mb-2 mr-sm-2" id="receiverId_received" name="receiverId">
-								<?php echo implode("\n", $arrOptionUserAccount); ?>
-							<select>
-							<?php else: ?>
-							<input type="hidden" name="receiverId" value="<?php echo intval($mainAccount->accountId); ?>">
-							<?php endif; ?>
-							<label for="year" class="mr-sm-2">year:</label>
-							<select class="form-control mb-2 mr-sm-2" name="year"><?php echo $txtOptionYear; ?><select>				
-							<label for="month" class="mr-sm-2">month:</label>
-							<select class="form-control mb-2 mr-sm-2" name="month"><?php echo $txtOptionMonth; ?><select>
-							<button type="button" class="btn btn-outline-info text-dark">
-								<div class="form-check">
-									<label class="form-check-label cursor-pointer">
-										<input type="checkbox" class="form-check-input cursor-pointer" name="includeFaucet" value="1">include Faucet Transaction
-									</label>
+				<div class="viewTokenTransactionHistory">
+					<h4 class="mt-3">Result table &quot;<?php echo ($sent) ? "I Sent" : "I Received"; ?>&quot;</h4>
+					<div class="history mt-4">
+					<?php foreach ($data as $row): ?>
+						<div class="card border-<?php echo trim($row["status"]); ?> mt-4">
+							<div class="card-body">
+								<div class="row">
+									<div class="col-sm-3 pb-4">
+										<h4><?php echo trim($row["quantity"]); ?> 
+										<img src="<?php echo trim($row["icon"]); ?>" style="height:38px;" class="rounded-circle" title="<?php echo trim($row["token"]); ?>">
+										<?php echo trim($row["symbol"]); ?>
+										</h4>
+										(<?php echo trim($row["status"]); ?>)
+									</div>
+									<div class="col-sm-9">
+										<div class="row">
+											<div class="col"><?php echo trim($row["senderName"]); ?>:</div>
+											<div class="col-sm-10">
+												<p><?php echo trim($row["reference"]); ?></p>
+												<p><?php echo trim($row["created"]); ?></p>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col"><?php echo trim($row["receiverName"]); ?>:</div>
+											<div class="col-sm-10">
+												<p><?php echo trim($row["supplement"]); ?></p>
+												<p><?php echo trim($row["modified"]); ?></p>
+											</div>
+										</div>
+									</div>
 								</div>
-							</button>							
-							<button type="button" class="btn btn-primary module mt-2 mb-2">Submit</button>		
-						</form>							
+							</div>
+						</div>
+					<?php endforeach; ?>
 					</div>
-					<div id="others" class="tab-pane fade">						
-						<form method="get" action="<?php echo $_SERVER['PHP_SELF']; ?>">
-							<input type="hidden" name="NGINX" value="" />
-							<input type="hidden" name="module" value="TokenTransactionHistory">
-							<label for="senderId_others" class="mr-sm-2">from:</label>
-							<select class="form-control mb-2 mr-sm-2" id="senderId_others" name="senderId">
-								<option value="0">all...</option>
-								<?php echo implode("\n", $arrOptionAccount); ?>
-							<select>					
-							<label for="receiverId_others" class="mr-sm-2">to:</label>
-							<select class="form-control mb-2 mr-sm-2" id="receiverId_others" name="receiverId">
-								<option value="0">all...</option>
-								<?php echo implode("\n", $arrOptionAccount); ?>
-							<select>
-							<label for="year" class="mr-sm-2">year:</label>
-							<select class="form-control mb-2 mr-sm-2" name="year"><?php echo $txtOptionYear; ?><select>				
-							<label for="month" class="mr-sm-2">month:</label>
-							<select class="form-control mb-2 mr-sm-2" name="month"><?php echo $txtOptionMonth; ?><select>	
-							<button type="button" class="btn btn-outline-info text-dark">
-								<div class="form-check">
-									<label class="form-check-label cursor-pointer">
-										<input type="checkbox" class="form-check-input cursor-pointer" name="includeFaucet" value="1">include Faucet Transaction
-									</label>
-								</div>
-							</button>
-							<button type="button" class="btn btn-primary module mt-2 mb-2">Submit</button>	
-						</form>							
-					</div>
-				</div>	
-
-				<div class="table-responsive viewTokenTransactionHistory">
-					<h4 class="mt-3">Result table &quot;I Sent&quot;</h4>
-					<table class="table table-striped history">
-						<thead>
-							<tr class="m-0 d-flex">
-								<th class="col-2">Sender</th>
-								<th class="col-1">Quantity</th>
-								<th class="col-4">Reference</th>
-								<th class="col-2">Status</th>
-								<th class="col-2">Date</th>
-								<th class="col-1">more</th>
-							</tr>
-						</thead>
-						<tbody>
-						<?php foreach ($data as $row): ?>
-							<tr class="m-0 d-flex">
-								<td class="col-2"><?php echo trim($row["receiverName"]); ?></td>
-								<td class="col-1"><?php echo trim($row["quantity"]); ?></td>
-								<td class="col-4"><?php echo trim($row["reference"]); ?></th>
-								<td class="col-2"><?php echo trim($row["status"]); ?></td>
-								<td class="col-2"><?php echo trim($row["datetime"]); ?></td>
-								<td class="col-1"><button type="button" data-transactionid="<?php echo intval($row["transactionId"]); ?>" class="btn btn-outline-secondary">details</button></td>
-							</tr>
-						<?php endforeach; ?>
-						</tbody>
-					</table>				
 				</div>
 				<template id="viewTokenTransactionHistorySent">
-				<h4 class="mt-3">Result table &quot;I Sent&quot;</h4>
-				<table class="table table-striped table-hover history mt-3">
-					<thead>
-						<tr class="m-0 d-flex">
-							<th class="col-2">Receiver</th>
-							<th class="col-1">Quantity</th>
-							<th class="col-4">Reference</th>
-							<th class="col-2">Status</th>
-							<th class="col-2">Date</th>
-							<th class="col-1">more</th>
-						</tr>				
-					</thead>
-					<tbody>
-					</tbody>
-				</table>
+					<h4 class="mt-3">Result table &quot;I Sent&quot;</h4>
+					<div class="history mt-4">
+					</div>
 				</template>				
-				<template id="itemTokenTransactionHistorySent">
-					<tr class="m-0 d-flex">
-						<td class="col-2">${receiverName}</td>
-						<td class="col-1">${quantity}</td>
-						<td class="col-4">${reference}</th>
-						<td class="col-2">${status}</td>
-						<td class="col-2">${datetime}</td>
-						<td class="col-1"><button type="button" data-transactionid="${transactionId}" class="btn btn-outline-secondary">details</button></td>
-					</tr>
-				</template>	
 				<template id="viewTokenTransactionHistoryReceived">
-				<h4 class="mt-3">Result table &quot;I Received&quot;</h4>
-				<table class="table table-striped table-hover history mt-3">
-					<thead>
-						<tr class="m-0 d-flex">
-							<th class="col-2">Sender</th>
-							<th class="col-1">Quantity</th>
-							<th class="col-4">Reference</th>
-							<th class="col-2">Status</th>
-							<th class="col-2">Date</th>
-							<th class="col-1">more</th>
-						</tr>				
-					</thead>
-					<tbody>
-					</tbody>
-				</table>
+					<h4 class="mt-3">Result table &quot;I Received&quot;</h4>
+					<div class="history mt-4">
+					</div>
 				</template>				
-				<template id="itemTokenTransactionHistoryReceived">
-					<tr class="m-0 d-flex">
-						<td class="col-2">${senderName}</td>
-						<td class="col-1">${quantity}</td>
-						<td class="col-4">${reference}</th>
-						<td class="col-2">${status}</td>
-						<td class="col-2">${datetime}</td>
-						<td class="col-1"><button type="button" data-transactionid="${transactionId}" class="btn btn-outline-secondary">details</button></td>
-					</tr>
-				</template>	
 				<template id="viewTokenTransactionHistoryOthers">
-				<h4 class="mt-3">Result table &quot;Others&quot;</h4>
-				<table class="table table-striped table-hover history mt-3">
-					<thead>
-						<tr class="m-0 d-flex">
-							<th class="col-2">Sender</th>
-							<th class="col-2">Receiver</th>							
-							<th class="col-1">Quantity</th>
-							<th class="col-3">Reference</th>
-							<th class="col-2">Status</th>
-							<th class="col-1">Date</th>
-							<th class="col-1">more</th>
-						</tr>				
-					</thead>
-					<tbody>
-					</tbody>
-				</table>
+					<h4 class="mt-3">Result table &quot;Others&quot;</h4>
+					<div class="history mt-4">
+					</div>
 				</template>					
-				<template id="itemTokenTransactionHistoryOthers">
-					<tr class="m-0 d-flex">
-						<td class="col-2">${senderName}</td>
-						<td class="col-2">${receiverName}</td>
-						<td class="col-1">${quantity}</td>
-						<td class="col-3">${reference}</th>
-						<td class="col-2">${status}</td>
-						<td class="col-1">${modified}</td>
-						<td class="col-1"><button type="button" data-transactionid="${transactionId}" class="btn btn-outline-secondary">details</button></td>
-					</tr>
-				</template>				
+				<template id="itemTokenTransactionHistory">
+					<div class="card border-${status} mt-4">
+						<div class="card-body">
+							<div class="row">
+								<div class="col-sm-3 pb-4">
+									<h4>${quantity}
+									<img src="${icon}" style="height:38px;" class="rounded-circle" title="${token}">
+									${symbol}
+									</h4>
+									(${status})
+								</div>
+								<div class="col-sm-9">
+									<div class="row">
+										<div class="col">${senderName}</div>
+										<div class="col-sm-10">
+											<p>${reference}</p>
+											<p>${created}</p>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col">${receiverName}:</div>
+										<div class="col-sm-10">
+											<p>${supplement}</p>
+											<p>${modified}</p>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</template>					
 			</div>
 		</div>
+		<div class="row">
+			<div class="col">
+				<div class="nav-scroller py-1 mb-2"> 
+					<nav class="nav d-flex justify-content-center"> 
+						<ul class="pagination pagination-sm flex-sm-wrap"> 
+						<?php for($index = 1 ; $index <= $pages; $index++): ?>
+					<li class="page-item<?php echo ($page == $index) ? " active" : ""; ?>">
+						<a class="page-link" href="<?php echo $_SERVER['PHP_SELF']; ?>?page=<?php echo $index.$queryString; ?>"><?php echo $index; ?></a>
+					</li>
+					<?php endfor; ?>
+						</ul> 
+					</nav> 
+				</div>		
+			</div>
+		</div>		
 	</div>
 </section>
 
@@ -325,7 +342,7 @@
 	</div>
 </section>
 
-<footer class="page-footer font-small footer-background fixed-bottom">
+<footer class="page-footer font-small pt-4">
 	<div class="footer-copyright text-center py-3">© <?php echo date("Y");?> Copyright:
 		<a href="https://epitomecl.com"> EpitomeCL.com</a>
 	</div>
@@ -534,15 +551,15 @@ function requestGet(data) {
 						switch (obj.view) {
 							case "sent":
 								viewTpl = $('#viewTokenTransactionHistorySent').html().split(/\$\{(.+?)\}/g);
-								itemTpl = $('#itemTokenTransactionHistorySent').html().split(/\$\{(.+?)\}/g);
+								itemTpl = $('#itemTokenTransactionHistory').html().split(/\$\{(.+?)\}/g);
 								break;
 							case "received":
 								viewTpl = $('#viewTokenTransactionHistoryReceived').html().split(/\$\{(.+?)\}/g);
-								itemTpl = $('#itemTokenTransactionHistoryReceived').html().split(/\$\{(.+?)\}/g);
+								itemTpl = $('#itemTokenTransactionHistory').html().split(/\$\{(.+?)\}/g);
 								break;
 							case "others":
 								viewTpl = $('#viewTokenTransactionHistoryOthers').html().split(/\$\{(.+?)\}/g);
-								itemTpl = $('#itemTokenTransactionHistoryOthers').html().split(/\$\{(.+?)\}/g);
+								itemTpl = $('#itemTokenTransactionHistory').html().split(/\$\{(.+?)\}/g);
 								break;
 						}
 						var view = [{ foo: "foo"}];
@@ -550,14 +567,12 @@ function requestGet(data) {
 							return viewTpl.map(render(item)).join('');
 						}));						
 						var items = obj.data;
-						$('.viewTokenTransactionHistory table.history').find('tbody').detach();
-						$('.viewTokenTransactionHistory table.history').append($('<tbody>'));  
-						$('.viewTokenTransactionHistory table.history').find('tbody:last').append(
+						$('.viewTokenTransactionHistory div.history').empty();
+						$('.viewTokenTransactionHistory div.history').append(
 							items.map(function (item) {
 								return itemTpl.map(render(item)).join('');
 							})
 						);
-						$(".viewTokenTransactionHistory tr[data-dialog='1']").addClass('bg-warning');
 					}
 					break;
 				case "TokenTransactionDetail":

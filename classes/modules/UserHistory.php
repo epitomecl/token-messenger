@@ -83,7 +83,7 @@ class UserHistory {
 			$sql .= sprintf("AND MONTH(balance.modified) = %d ", $month);
 		}
 		$sql .= ") AS receivedToken, ";
-		$sql .= "date_format(account.created, '%m/%d/%y') AS created ";
+		$sql .= "date_format(account.created, '%m/%d/%Y') AS created ";
 		$sql .= "FROM account ";
 		$sql .= "LEFT JOIN user ON (account.user_id = user.user_id);";
 		

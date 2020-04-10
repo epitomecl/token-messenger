@@ -40,7 +40,7 @@ class DirectTokenTransfer {
 				$obj->receiver = $this->getAccountName($mysqli, $receiverId);	
 				$obj->quantity = $quantity;
 				$obj->reference = $reference;
-				$obj->datetime = date("m/d/y H:i", time());
+				$obj->datetime = date("m/d/Y H:i", time());
 				
 				array_push($data, $obj);
 			}
@@ -72,10 +72,11 @@ class DirectTokenTransfer {
 	
 	protected function hasAccountQuantity($mysqli, $accountId, $quantity) {
 		$counter = 0;		
-		$sql = "SELECT COUNT(balance.token_id) AS quantity ";
+		$sql = "SELECT COUNT(token.account_id) AS quantity ";
 		$sql .= "FROM balance ";
-		$sql .= "LEFT JOIN token ON (token.account_id = balance.account_id) ";
-		$sql .= sprintf("WHERE balance.account_id = %d;", $accountId);
+		$sql .= "LEFT JOIN token ON (token.token_id = balance.token_id) ";
+		$sql .= sprintf("WHERE balance.account_id = %d ", $accountId);
+		$sql .= sprintf("AND token.account_id = %d;", $accountId);
 		
 		if ($result = $mysqli->query($sql)) {
 			while ($row = $result->fetch_assoc()) {

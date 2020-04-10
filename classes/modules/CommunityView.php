@@ -48,6 +48,9 @@
 			</li>
 			<?php if ($isMember): ?>
 			<li class="nav-item">
+				<a class="nav-link" href="<?php echo $_SERVER['PHP_SELF']; ?>?module=chatmessage">My Messages</a>
+			</li>			
+			<li class="nav-item">
 				<a class="nav-link" href="<?php echo $_SERVER['PHP_SELF']; ?>?module=txhistory">Tx History</a>
 			</li>	  
 			<li class="nav-item">
